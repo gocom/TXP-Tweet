@@ -11,7 +11,7 @@ new Arc_Twitter_Publish();
 
 function arc_twitter($atts)
 {
-  global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
+  global $prefs;
 
   extract(lAtts(array(
     'user'      => $prefs['arc_twitter_user'],
@@ -68,7 +68,7 @@ function arc_twitter($atts)
 
 function arc_twitter_search($atts)
 {
-    global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
+    global $prefs;
 
     extract(lAtts(array(
         'user'      => $prefs['arc_twitter_user'],
@@ -229,8 +229,7 @@ function _arc_twitter_widget_js()
 
 function arc_twitter_tweet_button($atts, $thing=null)
 {
-    global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
-    global $thisarticle;
+    global $prefs, $thisarticle;
 
     extract(lAtts(array(
         'user'        => $prefs['arc_twitter_user'], // via user account
@@ -296,8 +295,7 @@ function arc_twitter_tweet_button($atts, $thing=null)
  */
 function arc_twitter_follow_button($atts, $thing=null)
 {
-    global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
-    global $thisarticle;
+    global $prefs;
 
     extract(lAtts(array(
         'user'        => $prefs['arc_twitter_user'], // via user account
