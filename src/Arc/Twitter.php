@@ -187,32 +187,6 @@ function arc_twitter_tweet_url($atts, $thing=null) {
     }
 }
 
-function arc_twitter_tinyurl($atts, $thing=null) {
-    global $thisarticle;
-
-    extract(lAtts(array(
-      'id'      => $thisarticle['thisid'],
-      'title'   => '',
-      'class'   => ''
-    ),$atts));
-
-    if ($id) {
-      // Fetch arc_twitter stuff to build tweet from
-      $tweet = safe_row("tinyurl"
-        , 'arc_twitter', "article_id={$id}");
-    }
-
-    if ($tweet['tinyurl']) {
-      if ($thing===null) {
-        return $tweet['tinyurl'];
-      }
-
-      return href(parse($thing), $tweet['tinyurl'],
-        ($title ? ' title="'.$title.'"' : '')
-        .($class ? ' class="'.$class.'"' : ''));
-    }
-}
-
 /*
  * Public tag for outputting widget JS
  */
