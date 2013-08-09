@@ -7,5 +7,12 @@
     "author_uri": "http://redhotchilliproject.com/",
     "order": 5,
     "flags": 3,
-    "help": {"file" : ["./README.textile"]}
+    "help": {"file": ["./README.textile"]},
+    "source": {"file": [
+        "./src/Arc/Twitter/Admin.php",
+        "./src/Arc/Twitter/API.php",
+        "./src/Arc/Twitter/Install.php",
+        "./src/Arc/Twitter/Publish.php",
+        "./src/Arc/Twitter.php"
+    ]}
 }
