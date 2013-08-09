@@ -21,6 +21,7 @@ class Arc_Twitter_Publish
      * Publishes the article on Twitter.
      *
      * @todo Shorten the URL
+     * @todo Catch Exceptions thrown by Twitter API
      */
 
     public function tweet($event, $step, $r)
@@ -56,15 +57,16 @@ class Arc_Twitter_Publish
         }
 
         $status = trim(join(' ', $status));
-        $twitter = new Arc_Twitter_API();
-        $result = $twitter->post('statuses/update', array('status' => $status));
 
-        if ($result && $result->id)
+        $twitter = new Arc_Twitter_API();
+        $result = $twitter->statusesUpdate($status);
+
+        if ($result && $result['id'])
         {
             safe_insert(
                 'arc_twitter',
                 "article = ".intval($r['ID']).",
-                tweet_id = '".doSlash($tweet_id)."',
+                tweet_id = '".doSlash($result['id'])."',
                 status = '".doSlash($status)."',
                 url = '".doSlash($url)."'"
             );
