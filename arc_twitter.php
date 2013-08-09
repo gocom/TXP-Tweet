@@ -1,52 +1,90 @@
 <?php
 
-global $prefs,$txpcfg,$arc_twitter_consumerKey,$arc_twitter_consumerSecret;
+/**
+ * Installer.
+ */
 
-$arc_twitter = array();
+class Arc_Twitter_Install
+{
+    /**
+     * An array of plugin preference strings.
+     *
+     * @var array
+     */
 
-$arc_twitter_consumerKey = 'nKcXslwzZhBd0kfKMetnPA';
-$arc_twitter_consumerSecret = 'C6nSPCL3eeHGTBhKCgwd9oclcuD0srB8WVkfXQYC54';
+    protected $prefs = array(
+        'user'                => array('text_input', ''),
+        'prefix'              => array('text_input', 'Just posted:'),
+        'suffix'              => array('text_input', ''),
+        'cache_dir'           => array('text_input', ''), // TODO: remove?
+        'tweet_default'       => array('yesnoradio', 1),
+        'url_method'          => array('arc_twitter_url_method_select', 'tinyurl'),
+        'access_token'        => array('text_input', ''),
+        'access_token_secret' => array('text_input', ''),
+        'consumerkey'         => array('text_input', ''),
+        'consumersecret'      => array('text_input', ''),
+    );
 
-add_privs('plugin_prefs.arc_twitter','1,2');
-register_callback('arc_twitter_install','plugin_lifecycle.arc_twitter', 'installed');
-register_callback('arc_twitter_uninstall','plugin_lifecycle.arc_twitter', 'deleted');
-register_callback('arc_twitter_prefs','plugin_prefs.arc_twitter');
+    /**
+     * Constructor.
+     */
+
+    public function __construct()
+    {
+        add_privs('plugin_prefs.arc_twitter', '1,2');
+        register_callback(array($this, 'install'), 'plugin_lifecycle.arc_twitter', 'installed');
+        register_callback(array($this, 'uninstall'), 'plugin_lifecycle.arc_twitter', 'deleted');
+        register_callback(array($this, 'prefs'), 'plugin_prefs.arc_twitter');
+    }
+
+    /**
+     * Installer.
+     */
+
+    public function install()
+    {
+        safe_query(
+            "CREATE TABLE IF NOT EXISTS ".safe_pfx('arc_twitter')." (
+                id INTEGER(11) AUTO_INCREMENT PRIMARY KEY,
+                article_id INTEGER(11),
+                tweet_id VARCHAR(255),
+                tweet VARCHAR(140),
+                tinyurl VARCHAR(30)
+            )"
+        );
+        
+        $position = 1;
+
+        foreach ($this->prefs as $name => $pref)
+        {
+            if (($name = 'arc_twitter_' . $name) && get_pref($name, false) === false)
+            {
+                set_pref($name, $pref[1], 'arc_twitter', $position, $pref[0]);
+            }
+
+            $position++;
+        }
+    }
+
+    /**
+     * Uninstaller.
+     */
+
+    public function uninstall()
+    {
+        safe_query("DROP TABLE IF EXISTS ".safe_pfx('arc_twitter'));
+        safe_delete('txp_prefs', "event = 'arc_twitter'");
+    }
+}
+
+new Arc_Twitter_Install();
 
 /*
  * Setup initial preferences if not in the txp_prefs table.
  */
-if (!isset($prefs['arc_twitter_user']))
-    set_pref('arc_twitter_user', '', 'arc_twitter', 1, 'text_input');
-if (!isset($prefs['arc_twitter_prefix']))
-  set_pref('arc_twitter_prefix','Just posted:', 'arc_twitter', 2, 'text_input');
-if (!isset($prefs['arc_twitter_suffix']))
-  set_pref('arc_twitter_suffix','', 'arc_twitter', 2, 'text_input');
-if (!isset($prefs['arc_twitter_cache_dir']))
-  set_pref('arc_twitter_cache_dir',$txpcfg['txpath'].$prefs['tempdir'], 'arc_twitter', 1, 'text_input');
-if (!isset($prefs['arc_twitter_tweet_default']))
-  set_pref('arc_twitter_tweet_default', 1, 'arc_twitter', 2, 'yesnoRadio');
-if (!isset($prefs['arc_twitter_url_method']))
-  set_pref('arc_twitter_url_method', 'tinyurl', 'arc_twitter', 2,
-    'arc_twitter_url_method_select');
-if (!isset($prefs['arc_short_url']))
-  set_pref('arc_short_url', 0, 'arc_twitter', 2, 'yesnoRadio');
-if (!isset($prefs['arc_short_site_url']))
-  set_pref('arc_short_site_url', $prefs['siteurl'], 'arc_twitter', 2, 'text_input');
-// Make sure that the Twitter tab has been defined
-if (!isset($prefs['arc_twitter_tab'])) {
-  set_pref('arc_twitter_tab', 'extensions', 'arc_twitter', 2,
-    'arc_twitter_tab_select');
-    $prefs['arc_twitter_tab'] = 'extensions';
-}
-
-// Check if arc_short_url is enabled
-if ((isset($prefs['arc_short_url'])&&$prefs['arc_short_url'])
-|| (isset($prefs['arc_short_url_method'])&&$prefs['arc_twitter_url_method']=='arc_twitter')) {
-  register_callback('arc_short_url_redirect', 'txp_die', 404);
-}
 
 if (@txpinterface == 'admin') {
-    register_callback('_arc_twitter_auto_enable', 'plugin_lifecycle.arc_twitter', 'installed');
+    
     if (!empty($prefs['arc_twitter_user'])
         && !empty($prefs['arc_twitter_accessToken'])
         && !empty($prefs['arc_twitter_accessTokenSecret']) ) {
@@ -484,49 +522,11 @@ function arc_twitter_follow_button($atts, $thing=null)
     return $js.$html;
 }
 
-/*
-    Admin-side functions
-    ================================================================
-*/
 
-// Installation function - builds MySQL table
-function arc_twitter_install()
-{
-
-    // For first install, create table for tweets
-    $sql = "CREATE TABLE IF NOT EXISTS ".PFX."arc_twitter ";
-    $sql.= "(arc_twitterid INTEGER AUTO_INCREMENT PRIMARY KEY,
-        article_id INTEGER(11),
-        tweet_id BIGINT(20),
-        tweet VARCHAR(140),
-        tinyurl VARCHAR(30));";
-
-    if (!safe_query($sql)) {
-        return 'Error - unable to create arc_twitter table';
-    }
-
-}
-
-// Uninstall function - deletes MySQL table and related preferences
-function arc_twitter_uninstall()
-{
-
-    $sql = "DROP TABLE IF EXISTS ".PFX."arc_twitter;";
-    if (!safe_query($sql)) {
-        return 'Error - unable to delete arc_twitter table';
-    }
-
-    $sql = "DELETE FROM  ".PFX."txp_prefs WHERE event='arc_twitter';";
-    if (!safe_query($sql)) {
-        return 'Error - unable to delete arc_twitter preferences';
-    }
-
-}
 function arc_twitter_url_method_select($name, $val)
 {
     $methods = array('tinyurl' => 'Tinyurl',
       'isgd' => 'Is.gd',
-      'arc_twitter' => 'TXP Tweet',
       'smd' => 'smd_short_url');
     return selectInput($name, $methods, $val, '', '', $name);
 }
@@ -537,223 +537,7 @@ function arc_twitter_tab_select($name, $val)
         '' => 'Hidden');
     return selectInput($name, $tabs, $val, '', '', $name);
 }
-// Provide interface for setting preferences
-function arc_twitter_prefs($event,$step)
-{
 
-    global $prefs,$arc_twitter_consumerKey,$arc_twitter_consumerSecret;
-
-    $user          = $prefs['arc_twitter_user'];
-    $prefix        = $prefs['arc_twitter_prefix'];
-    $suffix        = $prefs['arc_twitter_suffix'];
-    $tweet_default = $prefs['arc_twitter_tweet_default'];
-    $url_method    = $prefs['arc_twitter_url_method'];
-    $short_url     = $prefs['arc_short_url'];
-    $short_site_url= $prefs['arc_short_site_url'];
-    $cache_dir     = $prefs['arc_twitter_cache_dir'];
-    $tab           = $prefs['arc_twitter_tab'];
-
-    switch ($step) {
-        case 'prefs_save': pagetop('TXP Tweet', 'Preferences saved'); break;
-        case 'register': pagetop('TXP Tweet','Connect to Twitter'); break;
-        case 'validate':
-        default: pagetop('TXP Tweet');
-    }
-
-    $html = '';
-
-    if ($step=='register') { // OAuth registration process
-
-        $twit = new arc_twitter($arc_twitter_consumerKey, $arc_twitter_consumerSecret);
-
-        // Build a callback URL for Twitter to return to the next stage
-        $callbackURL = $twit->callbackURL($event,'validate');
-
-        $request = $twit->getRequestToken($callbackURL);
-        $request_token = $request["oauth_token"];
-        $request_token_secret = $request["oauth_token_secret"];
-
-        set_pref('arc_twitter_requestToken',$request_token, 'arc_twitter',2);
-        set_pref('arc_twitter_requestTokenSecret',$request_token_secret, 'arc_twitter',2);
-
-    $html = "<div class='text-column'>"
-      ."<p>".href('Sign-in to Twitter', $twit->getAuthorizeURL($request))." and follow the instructions to allow TXP Tweet to use your account. If you are already signed in to Twitter then that account will be associated with TXP Tweet so you may need to sign out first if you want to use a different account.</p>"
-      ."</div>";
-
-    } elseif ($step=='validate') {
-        $twit = new arc_twitter($arc_twitter_consumerKey
-            , $arc_twitter_consumerSecret, $prefs['arc_twitter_requestToken']
-            , $prefs['arc_twitter_requestTokenSecret']);
-        // Ask Twitter for an access token (and an access token secret)
-        $request = $twit->getAccessToken( gps('oauth_verifier') );
-        $access_token = $request['oauth_token'];
-        $access_token_secret = $request['oauth_token_secret'];
-        $user = $request['screen_name'];
-        // Store the access token and secret
-        set_pref('arc_twitter_accessToken',$access_token, 'arc_twitter',2);
-        set_pref('arc_twitter_accessTokenSecret',$access_token_secret
-            , 'arc_twitter',2);
-        set_pref('arc_twitter_user',$user);
-        $prefs['arc_twitter_accessToken'] = $access_token;
-        $prefs['arc_twitter_accessTokenSecret'] = $access_token_secret;
-        unset($twit);
-    }
-
-    if ($step=="prefs_save") {
-        $prefix = trim(gps('arc_twitter_prefix'));
-        $suffix = trim(gps('arc_twitter_suffix'));
-        $tweet_default = gps('arc_twitter_tweet_default');
-        $url_method = gps('arc_twitter_url_method');
-        $short_url = gps('arc_short_url');
-        $short_site_url = gps('arc_short_site_url');
-        $cache_dir = gps('arc_twitter_cache_dir');
-        $tab = gps('arc_twitter_tab');
-        if (strlen($prefix)<=20) {
-            set_pref('arc_twitter_prefix',$prefix);
-        } else {
-            $prefix = $prefs['arc_twitter_prefix'];
-        }
-        if (strlen($suffix)<=20) {
-            set_pref('arc_twitter_suffix',$suffix);
-        } else {
-            $suffix = $prefs['arc_twitter_suffix'];
-        }
-        $tweet_default = ($tweet_default) ? 1 : 0;
-        $short_url = ($short_url) ? 1 : 0;
-        if (!$short_site_url) $short_site_url = $prefs['siteurl'];
-        set_pref('arc_twitter_tweet_default',$tweet_default);
-        set_pref('arc_short_url',$short_url);
-        set_pref('arc_twitter_url_method',$url_method);
-        set_pref('arc_short_site_url',$short_site_url);
-        set_pref('arc_twitter_cache_dir',$cache_dir);
-        set_pref('arc_twitter_tab',$tab);
-    }
-
-    if ( $step!='register' ) {
-        if ( isset($prefs['arc_twitter_accessToken'])
-        && isset($prefs['arc_twitter_accessTokenSecret']) ) {
-            $twit = new arc_twitter($arc_twitter_consumerKey
-                , $arc_twitter_consumerSecret, $prefs['arc_twitter_accessToken']
-                , $prefs['arc_twitter_accessTokenSecret']);
-            $registerURL = $twit->callbackURL($event,'register');
-
-            // Define the fields ready to build the form
-            $fields = array(
-        'Tweet Settings' => array(
-          'arc_twitter_prefix' => array(
-            'label' => 'Tweet prefix',
-            'value' => $prefix
-          ),
-          'arc_twitter_suffix' => array(
-            'label' => 'Tweet suffix',
-            'value' => $prefix
-          ),
-          'arc_twitter_tweet_default' => array(
-            'label' => 'Tweet articles by default',
-            'type' => 'yesnoRadio',
-            'value' => $tweet_default
-          ),
-          'arc_twitter_url_method' => array(
-            'label' => 'URL shortner',
-            'type' => 'arc_twitter_url_method_select',
-            'value' => $url_method
-          )
-        ),
-        'TXP Tweet short URL' => array(
-          'arc_short_url' => array(
-            'label' => 'Enable TXP Tweet short URL redirect',
-            'type' => 'yesnoRadio',
-            'value' => $short_url
-          ),
-          'arc_short_site_url' => array(
-            'label' => 'TXP Tweet short site URL',
-            'value' => $short_site_url
-          )
-        ),
-        'Twitter Tab' => array(
-          'arc_twitter_tab' => array(
-            'label' => 'Location of tab',
-            'type' => 'arc_twitter_tab_select',
-            'value' => $tab
-          )
-        ),
-        'Cache' => array(
-          'arc_twitter_cache_dir' => array(
-            'label' => 'Cache directory',
-            'value' => $cache_dir
-          )
-        )
-            );
-
-            $form = "<h2>Twitter account details</h2>"
-        ."<p><span class='edit-label'>Twitter username</span>"
-        ."<span class='edit-value'>"
-        .($prefs['arc_twitter_user'] ? $user.' ('.href('Re-connect',$registerURL).')' : '<em>unknown</em>'.href('Connect to Twitter',$registerURL))
-                ."</span></p>";
-
-            $form .= _arc_twitter_form_builder($fields);
-
-            $form .= sInput('prefs_save').n.eInput('plugin_prefs.arc_twitter');
-
-      $form .= '<p>'.fInput('submit', 'Submit', gTxt('save_button'), 'publish').'</p>';
-
-      $html = "<h1 class='txp-heading'>TXP Tweet</h1>"
-        ."<p class='nav-tertiary'>"
-        ."<a href='./?event=arc_admin_twitter' class='navlink'>Twitter</a><a href='./?event=plugin_prefs.arc_twitter' class='navlink-active'>Options</a>"
-        ."</p>";
-
-      $html .= form("<div class='plugin-column'>".$form."</div>", " class='edit-form'");
-
-        } elseif ( $step!='register' ) {
-
-            $registerURL = arc_twitter::callbackURL($event,'register');
-
-            $form = "<h2>Twitter account details</h2>"
-        ."<span class='edit-label'>Twitter username</span>"
-        ."<span class='edit-value'><em>unknown</em> &mdash; "
-        .href('Connect to Twitter',$registerURL)
-                ."</span>";
-
-      $html = form("<div class='plugin-column'>".$form."</div>", " class='edit-form'");
-
-        }
-    }
-
-    // Set jQuery for switching on/off relevant arc_short_url fields
-    $js = <<<JS
-<script language="javascript" type="text/javascript">
-$(document).ready(function(){
-  var onoff = $('.arc_short_url');
-  var arc_short_url_off = $('#arc_short_url-arc_short_url-0');
-  var url = $('.arc_short_site_url');
-  var url_method = $('select[name="arc_twitter_url_method"]');
-
-  if (arc_short_url_off.attr('checked')=='checked' && $('option:selected', url_method).val()!='arc_twitter') {
-    url.hide();
-  }
-  $('input', onoff).change(function(){
-    if ($('option:selected', url_method).val()!='arc_twitter') {
-      arc_short_url_off.attr('checked')=='checked' ? url.hide() : url.show();
-    }
-  });
-
-  if ($('option:selected', url_method).val()=='arc_twitter') {
-    onoff.hide(); url.show();
-  }
-  url_method.change(function(){
-    if ($('option:selected', url_method).val()=='arc_twitter') {
-      onoff.toggle(); url.show();
-    } else {
-      onoff.toggle();
-      arc_short_url_off.attr('checked')=='checked' ? url.hide() : url.show();
-    }
-  })
-});
-</script>
-JS;
-
-    echo $js.$html;
-}
 
 function _arc_twitter_form_builder($fields) {
 
@@ -1079,10 +863,7 @@ function arc_shorten_url($url, $method='', $atts=array())
   switch ($method) {
     case 'smd': // create a shortened URL using SMD Short URL
       return ($atts['id']) ? hu.$atts['id'] : false; break;
-    case 'arc_twitter': // native URL shortening
-
-      return ($atts['id']) ? PROTOCOL.$prefs['arc_short_site_url'].'/'.$atts['id'] : false;
-      break;
+   
 
     case 'isgd':
 
@@ -1113,63 +894,6 @@ function arc_shorten_url($url, $method='', $atts=array())
 
   return false; // fail
 
-}
-
-/*
- * Shortened URL redirect based on smd_short_url
- */
-function arc_short_url_redirect($event, $step) {
-  global $prefs;
-
-  $have_id = 0;
-
-  // Check if there is an available short site url and if it is being used in
-  // this instance
-  $short_site_url = $prefs['arc_short_site_url'];
-  if ($short_site_url) {
-    $short_site_url = PROTOCOL.$short_site_url.'/';
-    $url_parts = parse_url($short_site_url);
-    $re = '#^'.$url_parts['path'].'([0-9].*)#';
-    $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
-  }
-
-  // Fall back to standard site url (smd_short_url behaviour)
-  if ($have_id) {
-    $url_parts = parse_url(hu);
-    $re = '#^'.$url_parts['path'].'([0-9].*)#';
-    $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
-  }
-
-  // Do the redirect if we've got an article id
-  if ($have_id) {
-    $id = $m[1];
-    $permlink = permlinkurl_id($id);
-
-    if ($permlink) {
-      ob_end_clean();
-
-      // Stupid, over the top header setting for IE
-      header("Status: 301");
-      header("HTTP/1.0 301 Moved Permanently");
-      header("Location: ".$permlink, TRUE, 301);
-
-      // In case the header() method fails, fall back on a classic redirect
-      echo '<html><head><META HTTP-EQUIV="Refresh" CONTENT="0;URL='
-        .$permlink.'"></head><body></body></html>';
-      die();
-    }
-  }
-
-}
-
-// Auto enable plugin on install (original idea by Michael Manfre)
-function _arc_twitter_auto_enable($event, $step, $prefix='arc_twitter')
-{
-  $plugin = substr($event, strlen('plugin_lifecycle.'));
-  if (strncmp($plugin, $prefix, strlen($prefix)) == 0)
-  {
-    safe_update('txp_plugin', "status = 1", "name = '" . doSlash($plugin) . "'");
-  }
 }
 
 /*
