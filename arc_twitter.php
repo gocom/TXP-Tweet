@@ -45,10 +45,10 @@ class Arc_Twitter_Install
         safe_query(
             "CREATE TABLE IF NOT EXISTS ".safe_pfx('arc_twitter')." (
                 id INTEGER(11) AUTO_INCREMENT PRIMARY KEY,
-                article_id INTEGER(11),
-                tweet_id VARCHAR(255),
-                tweet VARCHAR(140),
-                tinyurl VARCHAR(255)
+                article INTEGER(11) NOT NULL default 0,
+                tweet_id VARCHAR(255) NOT NULL default '',
+                status VARCHAR(140) NOT NULL default '',
+                url VARCHAR(255)
             ) PACK_KEYS=1 AUTO_INCREMENT=1 CHARSET=utf8"
         );
 
@@ -78,28 +78,130 @@ class Arc_Twitter_Install
 
 new Arc_Twitter_Install();
 
-/*
- * Setup initial preferences if not in the txp_prefs table.
+/**
+ * Admin handler.
  */
 
-if (@txpinterface == 'admin') {
-    
-    if (!empty($prefs['arc_twitter_user'])
-        && !empty($prefs['arc_twitter_accessToken'])
-        && !empty($prefs['arc_twitter_accessTokenSecret']) ) {
+class Arc_Twitter_Admin
+{
+    public function __construct()
+    {
+        add_privs('arc_admin_twitter', '1,2,3,4');
+        register_tab('extensions', 'arc_twitter', gTxt('arc_twitter'));
+        register_callback(array($this, 'pane'), 'arc_twitter');
+    }
 
-        if ($prefs['arc_twitter_tab']) {
-            add_privs('arc_admin_twitter', '1,2,3,4');
-            register_tab($prefs['arc_twitter_tab'], 'arc_admin_twitter', 'Twitter');
-            register_callback('arc_admin_twitter', 'arc_admin_twitter');
-        }
-
-        register_callback('arc_article_tweet', 'ping');
-        register_callback('arc_article_tweet', 'article_saved');
-        register_callback('arc_article_tweet', 'article_posted');
-        register_callback('arc_append_twitter', 'article_ui', 'status');
+    public function pane()
+    {
+        
     }
 }
+
+new Arc_Twitter_Admin();
+
+/**
+ * Auto-publish tweets.
+ */
+
+class Arc_Twitter_Publish
+{
+    /**
+     * Constructor.
+     */
+
+    public function __construct()
+    {
+        register_callback(array($this, 'tweet'), 'article_saved');
+        register_callback(array($this, 'tweet'), 'article_posted');
+        register_callback(array($this, 'ui'), 'article_ui', 'status');
+    }
+
+    /**
+     * Publishes the article on Twitter.
+     *
+     * @todo Shorten the URL
+     */
+
+    public function tweet($event, $step, $r)
+    {
+        extract(psa(array(
+            'arc_twitter_prefix',
+            'arc_twitter_suffix',
+            'arc_twitter_tweet',
+        )));
+
+        // Title is escaped for SQL in 4.5.x. Due to this bug, we need to pull it from the DB.
+
+        if (!$arc_twitter_tweet || !($url = permlinkurl_id($r['ID'])) || !($title = trim(safe_field('Title', 'textpattern', 'ID = '.intval($r['ID']).' and Status = '.STATUS_LIVE))))
+        {
+            return;
+        }
+
+        if (safe_row('arc_twitter', "article = ".intval($r['ID'])))
+        {
+            return;
+        }
+
+        $status = array(
+            $arc_twitter_prefix,
+            $title,
+            $url,
+            $arc_twitter_suffix,
+        );
+
+        if (($over = strlen(trim(join(' ', $status))) - 140) && $over > 0)
+        {
+            $status[1] = substr($status[1], 0, $over * -1);
+        }
+
+        $status = trim(join(' ', $status));
+        $twitter = new Arc_Twitter_API();
+        $result = $twitter->post('statuses/update', array('status' => $status));
+
+        if ($result && $result->id)
+        {
+            safe_insert(
+                'arc_twitter',
+                "article = ".intval($r['ID']).",
+                tweet_id = '".doSlash($tweet_id)."',
+                status = '".doSlash($status)."',
+                url = '".doSlash($url)."'"
+            );
+        }
+    }
+
+    /**
+     * Tweet options group on Write panel.
+     */
+
+    public function ui($event, $step, $default, $rs)
+    {
+        return $default . wrapRegion(
+            'arc_twitter_tweet',
+
+            graf(
+                checkbox('arc_twitter_tweet', 1, '', '', 'reset_time').
+                tag(gTxt('arc_twitter_tweet_this'), 'label', array('for' => 'reset_time'))
+            ).
+
+            graf(
+                tag(gTxt('arc_twitter_prefix'), 'label', array('for' => 'arc_twitter_prefix')).br.
+                fInput('text', 'arc_twitter_prefix', '', '', '', '', INPUT_REGULAR, '', 'arc_twitter_prefix')
+            ).
+
+            graf(
+                tag(gTxt('arc_twitter_suffix'), 'label', array('for' => 'arc_twitter_suffix')).br.
+                fInput('text', 'arc_twitter_suffix', '', '', '', '', INPUT_REGULAR, '', 'arc_twitter_suffix')
+            ),
+
+            '',
+
+            gTxt('arc_twitter')
+        );
+    }
+}
+
+new Arc_Twitter_Publish();
 
 /*
     Public-side functions
@@ -723,129 +825,6 @@ JS;
     echo $js.$html;
 }
 
-// Add Twitter options to article article screen
-function arc_append_twitter($event, $step, $data, $rs1)
-{
-    global $prefs, $arc_twitter, $app_mode;
-
-    $prefix = trim(gps('arc_twitter_prefix'));
-    $prefix = ($prefix) ? $prefix : $prefs['arc_twitter_prefix'];
-    $suffix = trim(gps('arc_twitter_suffix'));
-    $suffix = ($suffix) ? $suffix : $prefs['arc_twitter_suffix'];
-
-    if ($rs1['ID']) {
-        $sql = "SELECT tweet_id,tweet FROM ".PFX."arc_twitter WHERE article_id=".$rs1['ID'].";";
-        $rs2 = safe_query($sql); $rs2 = nextRow($rs2);
-    } else { // new article
-        $rs2 = '';
-    }
-
-    if ($app_mode == 'async')
-    {
-     send_script_response('$("#arc_twitter").remove();');
-    }
-
-    if ($rs1['ID'] && $rs2['tweet_id']) {
-        $content = tag(arc_Twitter::makeLinks($rs2['tweet']),'p');
-        return $data.fieldset($content, 'Twitter update', 'arc_twitter');
-    } else {
-        $var = gps('arc_tweet_this');
-        $var = ($rs1['ID']&&!$var) ? 0 : $prefs['arc_twitter_tweet_default'];
-        $content  = tag(yesnoRadio('arc_tweet_this', $var, '', 'arc_tweet_this'),'p');
-        $content .= tag(href('Options','#arc_twitter_options', ' onclick="$(\'#arc_twitter_options\').toggle(); return false;"'),'p',' style="margin-top:5px;"');
-        $content .= tag(tag(tag('Tweet prefix','label', ' for="arc_twitter_prefix"')
-            .fInput('text','arc_twitter_prefix',$prefix,'edit','','','22','','arc_twitter_prefix'),'p')
-            .tag(tag('Tweet suffix (eg #hashtags)','label', ' for="arc_twitter_suffix"')
-            .fInput('text','arc_twitter_suffix',$suffix,'edit','','','22','','arc_twitter_suffix'),'p')
-            ,'div',' id="arc_twitter_options" class="toggle" style="display:none"');
-        if (isset($arc_twitter['error'])) {
-            $content .= '<p>'.$arc_twitter['error'].'</p>';
-        }
-        return $data.fieldset($content, 'Update Twitter', 'arc_twitter');
-    }
-
-}
-
-// Update Twitter with posted article
-function arc_article_tweet($event,$step)
-{
-    global $prefs, $arc_twitter, $arc_twitter_consumerKey
-        , $arc_twitter_consumerSecret;
-
-    $article_id = empty($GLOBALS['ID']) ? gps('ID') : $GLOBALS['ID'];
-    if (!empty($article_id)) {
-
-        include_once txpath.'/publish/taghandlers.php';
-
-        $article = safe_row("ID, Title, Section, Posted", 'textpattern',
-            "ID={$article_id} AND Status=4 AND now()>=Posted");
-
-        if ($article && gps('arc_tweet_this')) { // tweet article
-
-            // Need to manually update the 'URL only title' before building the
-            // URL
-            $article['url_title'] = gps('url_title');
-            // Make short URL
-            $url = permlinkurl($article);
-            $short_url = arc_shorten_url($url,$prefs['arc_twitter_url_method'],
-                array('id'=>$article_id));
-
-            if (!$short_url) { // Failed to obtain a shortened URL, do not tweet!
-                $arc_twitter['error'] = 'Unable to obtain a short URL for this article.';
-
-                return false;
-            }
-
-            // Construct Twitter update
-            $prefix  = trim(gps('arc_twitter_prefix'));
-            $pre_len = strlen($prefix);
-            $prefix  = ($prefix && $pre_len<=20) ? $prefix.' ' : '';
-            $suffix  = trim(gps('arc_twitter_suffix'));
-            $suf_len = strlen($suffix);
-            $suffix  = ($suffix && $suf_len<=40) ? ' '.$suffix : '';
-            $url_len = strlen($short_url)+1; // count URL length + 1 for prefixed space
-            if ($prefix) $pre_len += 1;
-            if ($suffix) $suf_len += 1;
-            if ((strlen($article['Title'])+$url_len+$pre_len+$suf_len)>140) {
-                $article['Title'] = substr($article['Title'],0,135-$url_len-$pre_len-$suf_len).'...';
-            }
-            $tweet = $prefix.$article['Title']." ".$short_url.$suffix;
-
-            // Update Twitter
-            $twit = new arc_twitter($arc_twitter_consumerKey
-                , $arc_twitter_consumerSecret, $prefs['arc_twitter_accessToken']
-                , $prefs['arc_twitter_accessTokenSecret']);
-            $result = $twit->post('statuses/update', array('status' => $tweet));
-
-            $tweet_id = (is_object($result)) ? $result[0]->id : 0;
-
-            if ($tweet_id) {
-
-                $tweet = addslashes($tweet);
-
-                // update arc_twitter table with tweet
-                $sql = "INSERT INTO ".PFX."arc_twitter (article_id,tweet_id,tweet,tinyurl) ";
-                $sql.= "VALUES($article_id,$tweet_id,\"$tweet\",'$short_url');";
-                safe_query($sql);
-
-                return true;
-
-            } else {
-
-                $arc_twitter['error'] = 'Twitter response: '
-                    .$twit->http_code;
-                return false;
-
-            }
-
-        }
-
-    }
-
-    return false;
-
-}
-
 /*
  * Shorten URLs using various methods
  */
@@ -895,21 +874,22 @@ function arc_shorten_url($url, $method='', $atts=array())
 
 }
 
-/*
- *******************************************************************************
-*/
-
-class arc_twitter extends TwitterOAuth {
+class Arc_Twitter extends TwitterOAuth
+{
     // Caching variables
     private $_cache = true;
     private $_cache_dir = './tmp';
     private $_cache_time = 1800; // 30 minute cache
 
-    function __construct($consumer_key, $consumer_secret, $oauth_token = NULL
-        , $oauth_token_secret = NULL)
+    function __construct($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL)
     {
-        parent::__construct($consumer_key, $consumer_secret, $oauth_token
-            , $oauth_token_secret);
+        parent::__construct(
+            get_pref('arc_twitter_consumer_key'),
+            get_pref('arc_twitter_consumer_secret'),
+            get_pref('arc_twitter_access_token'),
+            get_pref('arc_twitter_access_token_secret')
+        );
+
         $this->format = 'json';
         $this->timeout = 15;
         $this->connecttimeout = 15;
