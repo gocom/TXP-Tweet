@@ -22,9 +22,6 @@ function arc_twitter($atts)
     'retweets'  => false,
     'replies'   => true,
     'dateformat'=> $prefs['archive_dateformat'],
-    'caching'   => '1',
-    'cache_dir' => $prefs['arc_twitter_cache_dir'],
-    'cache_time'=> '5',
     'label'     => '',
     'labeltag'  => '',
     'break'     => 'li',
@@ -33,17 +30,7 @@ function arc_twitter($atts)
     'class_posted' => __FUNCTION__.'-posted'
     ),$atts));
 
-  $twit = new arc_twitter($arc_twitter_consumerKey
-            , $arc_twitter_consumerSecret, $prefs['arc_twitter_accessToken']
-            , $prefs['arc_twitter_accessTokenSecret']);
-
-  if ($caching) {  // turn on caching, recommended (default)
-    $twit->setCaching(true);
-    $twit->cacheDir($cache_dir);
-    $twit->cacheTime($cache_time);
-  } else {  // turn off caching, not recommended other than for testing
-    $twit->setCaching(false);
-  }
+    $twit = new Arc_Twitter_API();
 
   switch ($timeline) {
     case 'home': case 'friends':
@@ -93,9 +80,6 @@ function arc_twitter_search($atts)
         'limit'     => '10',
         'lang'      => '',
         'dateformat'=> $prefs['archive_dateformat'],
-        'caching'   => '1',
-        'cache_dir' => $prefs['arc_twitter_cache_dir'],
-        'cache_time'=> '5',
         'label'     => '',
         'labeltag'  => '',
         'break'     => 'li',
@@ -105,17 +89,7 @@ function arc_twitter_search($atts)
         'class_user'   => __FUNCTION__.'-user'
     ),$atts));
 
-        $twit = new arc_twitter($arc_twitter_consumerKey
-          , $arc_twitter_consumerSecret, $prefs['arc_twitter_accessToken']
-          , $prefs['arc_twitter_accessTokenSecret']);
-
-        if ($caching) {  // turn on caching, recommended (default)
-            $twit->setCaching(true);
-            $twit->cacheDir($cache_dir);
-            $twit->cacheTime($cache_time);
-        } else {  // turn off caching, not recommended other than for testing
-            $twit->setCaching(false);
-        }
+    $twit = new Arc_Twitter_API();
 
         // construct search query
         if (!empty($search)) {
