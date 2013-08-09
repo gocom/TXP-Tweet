@@ -1,0 +1,11 @@
+{
+    "name": "arc_twitter",
+    "description": "Twitter for Textpattern",
+    "version": "4.0.0",
+    "type": 5,
+    "author": "Andy Carter",
+    "author_uri": "http://redhotchilliproject.com/",
+    "order": 5,
+    "flags": 3,
+    "help": {"file" : ["./README.textile"]}
+}
