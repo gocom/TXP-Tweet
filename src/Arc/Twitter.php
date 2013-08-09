@@ -290,35 +290,31 @@ function arc_twitter_tweet_button($atts, $thing=null)
     return $js.$html;
 }
 
-/*
- * Twitter Follow button
+/**
+ * Renders a Follow button.
+ *
+ * @param  array  $atts  Attributes
+ * @param  string $thing Contained statement
+ * @return string
  */
-function arc_twitter_follow_button($atts, $thing=null)
+
+function arc_twitter_follow_button($atts, $thing = null)
 {
-    global $prefs;
-
     extract(lAtts(array(
-        'user'        => $prefs['arc_twitter_user'], // via user account
-        'lang'        => 'en',
-        'count'       => true,
-        'include_js'  => true,
-        'optimise_js' => false,
-        'class'       => 'twitter-follow-button'
-    ),$atts));
+        'user'   => get_pref('arc_twitter_user'),
+        'lang'   => 'en',
+        'count'  => 'true',
+        'class'  => 'twitter-follow-button',
+    ), $atts));
 
-    $atts = ''; // data attributes
+    if ($thing === null)
+    {
+        $thing = 'Follow @'.txpspecialchars($user);
+    }
 
-    
-    $atts .= ' data-lang="'.urlencode($lang).'"';
-
-    $atts .= ' data-show-count="'.($count?'true':'false').'"';
-
-    $thing = ($thing===null) ? 'Follow @'.$user : parse($thing);
-
-    $html = href($thing,'http://twitter.com/'.urlencode($user)
-      , ' class="'.$class.'"'.$atts);
-
-    $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
-
-    return $js.$html;
+    return href(parse($thing), 'http://twitter.com/'.urlencode($user), array(
+        'data-lang'       => $lang,
+        'data-show-count' => $count,
+        'class'           => $class,
+    )) . '<script src="http://platform.twitter.com/widgets.js"></script>';
 }
