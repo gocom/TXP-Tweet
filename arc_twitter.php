@@ -31,10 +31,9 @@ class Arc_Twitter_Install
 
     public function __construct()
     {
-        add_privs('plugin_prefs.arc_twitter', '1,2');
+        add_privs('prefs.arc_twitter', '1');
         register_callback(array($this, 'install'), 'plugin_lifecycle.arc_twitter', 'installed');
         register_callback(array($this, 'uninstall'), 'plugin_lifecycle.arc_twitter', 'deleted');
-        register_callback(array($this, 'prefs'), 'plugin_prefs.arc_twitter');
     }
 
     /**
