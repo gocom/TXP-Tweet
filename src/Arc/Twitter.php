@@ -242,13 +242,9 @@ function arc_twitter_tinyurl($atts, $thing=null) {
 /*
  * Public tag for outputting widget JS
  */
-function arc_twitter_widget_js($atts)
+function arc_twitter_widget_js()
 {
-  extract(lAtts(array(
-        'optimise' => false
-    ),$atts));
-
-  return _arc_twitter_widget_js($optimise);
+    return _arc_twitter_widget_js();
 }
 
 function _arc_twitter_widget_js()
@@ -268,7 +264,7 @@ function arc_twitter_tweet_button($atts, $thing=null)
         'text'        => '',
         'follow1'     => '',
         'follow2'     => '',
-        'lang'        => '',
+        'lang'        => 'en',
         'count'       => 'horizontal',
         'include_js'  => true,
         'optimise_js' => false,
@@ -301,11 +297,7 @@ function arc_twitter_tweet_button($atts, $thing=null)
       $q .= ($q ? '&amp;' : '').'related='.urlencode($follow1.$follow2);
     }
 
-    switch ($lang) {
-      case 'fr': break; case 'de': break; case 'es': break; case 'jp': break;
-      default:
-        $lang = 'en';
-    }
+    
     $q .= ($q ? '&amp;' : '').'lang='.urlencode($lang);
 
     switch ($count) {
@@ -335,7 +327,7 @@ function arc_twitter_follow_button($atts, $thing=null)
 
     extract(lAtts(array(
         'user'        => $prefs['arc_twitter_user'], // via user account
-        'lang'        => '',
+        'lang'        => 'en',
         'count'       => true,
         'include_js'  => true,
         'optimise_js' => false,
@@ -344,11 +336,7 @@ function arc_twitter_follow_button($atts, $thing=null)
 
     $atts = ''; // data attributes
 
-    switch ($lang) {
-      case 'fr': break; case 'de': break; case 'es': break; case 'jp': break;
-      default:
-        $lang = 'en';
-    }
+    
     $atts .= ' data-lang="'.urlencode($lang).'"';
 
     $atts .= ' data-show-count="'.($count?'true':'false').'"';
