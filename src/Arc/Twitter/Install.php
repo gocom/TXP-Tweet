@@ -48,7 +48,7 @@ class Arc_Twitter_Install
                 article INTEGER(11) NOT NULL default 0,
                 tweet_id VARCHAR(255) NOT NULL default '',
                 status VARCHAR(140) NOT NULL default '',
-                url VARCHAR(255)
+                url VARCHAR(255) NOT NULL default ''
             ) PACK_KEYS=1 AUTO_INCREMENT=1 CHARSET=utf8"
         );
 
