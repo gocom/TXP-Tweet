@@ -48,10 +48,10 @@ class Arc_Twitter_Install
                 article_id INTEGER(11),
                 tweet_id VARCHAR(255),
                 tweet VARCHAR(140),
-                tinyurl VARCHAR(30)
-            )"
+                tinyurl VARCHAR(255)
+            ) PACK_KEYS=1 AUTO_INCREMENT=1 CHARSET=utf8"
         );
-        
+
         $position = 1;
 
         foreach ($this->prefs as $name => $pref)
