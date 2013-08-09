@@ -18,7 +18,6 @@ class Arc_Twitter_Install
         'suffix'              => array('text_input', ''),
         'cache_dir'           => array('text_input', ''), // TODO: remove?
         'tweet_default'       => array('yesnoradio', 1),
-        'url_method'          => array('arc_twitter_url_method_select', 'tinyurl'),
         'access_token'        => array('text_input', ''),
         'access_token_secret' => array('text_input', ''),
         'consumerkey'         => array('text_input', ''),
