@@ -10,17 +10,16 @@ class Arc_Twitter_Install
      * An array of plugin preference strings.
      *
      * @var  array
-     * @todo Protect keys from direct reading, see rah_backup_dropbox
      */
 
     protected $prefs = array(
-        'user'                => array('text_input', ''),
-        'message'             => array('text_input', '{title} {url}'),
-        'tweet'               => array('yesnoradio', 1),
-        'access_token'        => array('text_input', ''),
-        'access_token_secret' => array('text_input', ''),
-        'consumer_key'        => array('text_input', ''),
-        'consumer_secret'     => array('text_input', ''),
+        'user'                => array('text_input', '', PREF_PLUGIN), // TODO: remove?
+        'message'             => array('text_input', '{title} {url}', PREF_PLUGIN),
+        'tweet'               => array('yesnoradio', 1, PREF_PLUGIN),
+        'consumer_key'        => array('Arc_Twitter_Pref_Fields->key', '', PREF_PLUGIN),
+        'consumer_secret'     => array('Arc_Twitter_Pref_Fields->key', '', PREF_PLUGIN),
+        'access_token'        => array('Arc_Twitter_Pref_Fields->token', '', PREF_PLUGIN),
+        'access_token_secret' => array('text_input', '', PREF_HIDDEN),
     );
 
     /**
@@ -56,7 +55,7 @@ class Arc_Twitter_Install
         {
             if (($name = 'arc_twitter_' . $name) && get_pref($name, false) === false)
             {
-                set_pref($name, $pref[1], 'arc_twitter', $position, $pref[0]);
+                set_pref($name, $pref[1], 'arc_twitter', $pref[2], $pref[0], $position);
             }
 
             $position++;
