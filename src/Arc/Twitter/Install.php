@@ -16,7 +16,7 @@ class Arc_Twitter_Install
         'user'                => array('text_input', ''),
         'prefix'              => array('text_input', 'Just posted:'),
         'suffix'              => array('text_input', ''),
-        'tweet_default'       => array('yesnoradio', 1),
+        'tweet'               => array('yesnoradio', 1),
         'access_token'        => array('text_input', ''),
         'access_token_secret' => array('text_input', ''),
         'consumer_key'        => array('text_input', ''),
