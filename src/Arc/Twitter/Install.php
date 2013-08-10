@@ -9,17 +9,17 @@ class Arc_Twitter_Install
     /**
      * An array of plugin preference strings.
      *
-     * @var  array
+     * @var array
      */
 
     protected $prefs = array(
-        'user'                => array('text_input', '', PREF_PLUGIN), // TODO: remove?
         'message'             => array('text_input', '{title} {url}', PREF_PLUGIN),
-        'tweet'               => array('yesnoradio', 1, PREF_PLUGIN),
+        'tweet'               => array('yesnoRadio', 1, PREF_PLUGIN),
         'consumer_key'        => array('Arc_Twitter_Pref_Fields->key', '', PREF_PLUGIN),
         'consumer_secret'     => array('Arc_Twitter_Pref_Fields->key', '', PREF_PLUGIN),
         'access_token'        => array('Arc_Twitter_Pref_Fields->token', '', PREF_PLUGIN),
         'access_token_secret' => array('text_input', '', PREF_HIDDEN),
+        'account_linked'      => array('yesnoRadio', 0, PREF_HIDDEN),
     );
 
     /**

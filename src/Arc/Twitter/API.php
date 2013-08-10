@@ -21,8 +21,8 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
         }
 
         parent::__construct($consumerKey, $consumerSecret);
-        $this->setOAuthToken(get_pref('arc_twitter_access_token'));
-        $this->setOAuthTokenSecret(get_pref('arc_twitter_access_token_secret'));
+        $this->oAuthToken = get_pref('arc_twitter_access_token');
+        $this->oAuthTokenSecret = get_pref('arc_twitter_access_token_secret');
     }
 
     /**
@@ -35,4 +35,24 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
     {
         return parent::doCall($url, $parameters, $authenticate, $method, $filePath, $expectJSON, $returnHeaders);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+
+    public function setOAuthToken($token)
+    {
+        set_pref('arc_twitter_access_token', $token);
+        return parent::setOAuthToken();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+
+    public function setOAuthTokenSecret($secret)
+    {
+        set_pref('arc_twitter_access_token_secret', $secret);
+        return parent::setOAuthTokenSecret();
+    }    
 }
