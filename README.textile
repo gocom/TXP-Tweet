@@ -1,6 +1,6 @@
 h1. arc_twitter
 
-Easily share articles on "Twitter":https://twitter.com from "Textpattern CMS'":http://textpattern.com Write panel, or include timelines in your page templates.
+Easily share articles on "Twitter":https://twitter.com from "Textpattern CMS'":http://textpattern.com Write panel, or include timelines in your page templates. *Work in progess, currently in unusable whim-write state*.
 
 h2. Requirements
 
