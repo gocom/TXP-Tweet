@@ -10,6 +10,7 @@
     "help": {"file": ["./README.textile"]},
     "source": {"file": [
         "./src/Arc/Twitter/Admin.php",
+        "./src/Arc/Twitter/Auth.php",
         "./src/Arc/Twitter/Pref/Fields.php",
         "./src/Arc/Twitter/API.php",
         "./src/Arc/Twitter/Install.php",
