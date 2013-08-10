@@ -2,8 +2,6 @@
 
 /**
  * Twitter API Wrapper.
- *
- * @todo oAuth loopback
  */
 
 class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
