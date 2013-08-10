@@ -35,7 +35,8 @@ function arc_twitter($atts, $thing = null)
 
     if ($article)
     {
-        $tweet = (object) safe_row('*', 'arc_twitter', "article = '".doSlash($article)."'");
+        // TODO: support comma-separated list of IDs.
+        $tweet = safe_row('*', 'arc_twitter', "article = '".doSlash($article)."'");
         return parse($thing);
     }
 
@@ -43,12 +44,12 @@ function arc_twitter($atts, $thing = null)
     {
         if ($type === 'created_at')
         {
-            return safe_strftime($format, strtotime($tweet->created_at));
+            return safe_strftime($format, strtotime($tweet['created_at']));
         }
 
         if ($type === 'status_url')
         {
-            $url = 'https://twitter.com/'.urlencode($user).'/status/'.urlencode($tweet->status_id);
+            $url = 'https://twitter.com/'.urlencode($user).'/status/'.urlencode($tweet['status_id']);
 
             if ($thing === null)
             {
@@ -61,35 +62,28 @@ function arc_twitter($atts, $thing = null)
             ));
         }
 
-        return txpspecialchars($tweet->{$type});
+        return txpspecialchars($tweet[$type]); // TODO: support nested keys.
     }
 
     $twitter = new Arc_Twitter_API();
 
-    switch ($timeline)
+    if ($timeline === 'home')
     {
-        case 'home':
-        case 'friends':
-            $timeline = 'statuses/friends_timeline';
-            break;
-        case 'mentions':
-            $timeline = 'statuses/mentions';
-            break;
-        default:
-            $timeline = 'statuses/user_timeline';
+        $tweets = $twitter->statusesHomeTimeline($limit, null, null, null, !$replies, null, null);
     }
-
-    $out = array();
-
-    $tweets = $twitter->get($timeline, array(
-        'screen_name'     => $user,
-        'count'           => $limit,
-        'include_rts'     => $retweets,
-        'exclude_replies' => !$replies,
-    ));
+    else if ($timeline === 'mentions')
+    {
+        $tweets = $twitter->statusesMentionsTimeline($limit, null, null, null, null, null);
+    }
+    else
+    {
+        $tweets = $twitter->statusesUserTimeline(null, $user, null, $limit, null, null, !$replies, null, $retweets);
+    }
 
     if ($tweets)
     {
+        $out = array();
+
         foreach ($tweets as $tweet)
         {
             $out[] = parse($thing);
@@ -100,6 +94,8 @@ function arc_twitter($atts, $thing = null)
 
     return '';
 }
+
+// TODO: merge with timeline functions.
 
 function arc_twitter_search($atts)
 {
