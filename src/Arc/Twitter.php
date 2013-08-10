@@ -1,9 +1,129 @@
 <?php
 
-new Arc_Twitter_Install();
-new Arc_Twitter_Admin();
-new Arc_Twitter_Admin_Article();
-new Arc_Twitter_Auth();
+class Arc_Twitter
+{
+    /**
+     * The current row.
+     *
+     * @var array
+     */
+
+    protected $current = array();
+
+    /**
+     * Constructor.
+     */
+
+    public function __construct()
+    {
+        new Arc_Twitter_Install();
+        new Arc_Twitter_Admin();
+        new Arc_Twitter_Admin_Article();
+        new Arc_Twitter_Auth();
+
+        Textpattern_Tag_Registry::register(array($this, 'follow'), 'arc_twitter_follow');
+        Textpattern_Tag_Registry::register(array($this, 'share'), 'arc_twitter_share');
+    }
+
+    /**
+     * Renders a follow button.
+     *
+     * @param  array  $atts  Attributes
+     * @param  string $thing Contained statement
+     * @return string
+     */
+
+    public function follow($atts, $thing = null)
+    {
+        extract(lAtts(array(
+            'user'   => '',
+            'lang'   => 'en',
+            'count'  => 'true',
+            'class'  => 'twitter-follow-button',
+        ), $atts));
+
+        if ($thing === null)
+        {
+            $thing = 'Follow @'.txpspecialchars($user);
+        }
+
+        return href(parse($thing), 'https://twitter.com/'.urlencode($user), array(
+            'data-lang'       => $lang,
+            'data-show-count' => $count,
+            'class'           => $class,
+        )) . '<script src="//platform.twitter.com/widgets.js"></script>';
+    }
+
+    /**
+     * Renders a share button.
+     *
+     * @param  array  $atts  Attributes
+     * @param  string $thing Contained statement
+     * @return string
+     */
+
+    public function share($atts, $thing = null)
+    {
+        global $thisarticle;
+
+        extract(lAtts(array(
+            'via'     => '',
+            'url'     => null,
+            'text'    => null,
+            'related' => '',
+            'lang'    => 'en',
+            'count'   => 'horizontal',
+            'class'   => 'twitter-share-button',
+        ), $atts));
+
+        $qs = $atts;
+        $qs['related'] = join(':', do_list($related));
+        unset($qs['class']);
+
+        if (!empty($thisarticle['thisid']))
+        {
+            if ($url === null)
+            {
+                $qs['url'] = permlinkurl($thisarticle);
+            }
+
+            if ($text === null)
+            {
+                $qs['text'] = $thisarticle['title'];
+            }
+        }
+
+        return href(parse($thing), 'https://twitter.com/share' . join_qs($qs), array(
+            'class' => $class,
+        )) . '<script src="//platform.twitter.com/widgets.js"></script>';
+    }
+
+    /**
+     * Gets a value from multi-dimensional array based on the given query.
+     *
+     * @param  string $name The query string
+     * @return mixed
+     */
+
+    public function getValue($name)
+    {
+        $value = $this->current;
+
+        foreach (do_list($name, '->') as $property)
+        {
+            if (!array_key_exists($property, $value))
+            {
+                return '';
+            }
+
+            $value = $value[$property];
+        }
+
+        return $value;
+    }
+}
+
+new Arc_Twitter();
 
 /**
  * Renders Twitter timeline.
@@ -138,77 +258,4 @@ function arc_twitter($atts, $thing = null)
     }
 
     return '';
-}
-
-/**
- * Renders a Share button.
- *
- * @param  array  $atts  Attributes
- * @param  string $thing Contained statement
- * @return string
- */
-
-function arc_twitter_share($atts, $thing = null)
-{
-    global $thisarticle;
-
-    extract(lAtts(array(
-        'via'     => get_pref('arc_twitter_user'),
-        'url'     => null,
-        'text'    => null,
-        'related' => '',
-        'lang'    => 'en',
-        'count'   => 'horizontal',
-        'class'   => 'twitter-share-button',
-    ), $atts));
-
-    $qs = $atts;
-    $qs['related'] = join(':', do_list($related));
-    unset($qs['class']);
-
-    if (!empty($thisarticle['thisid']))
-    {
-        if ($url === null)
-        {
-            $qs['url'] = permlinkurl($thisarticle);
-        }
-
-        if ($text === null)
-        {
-            $qs['text'] = $thisarticle['title'];
-        }
-    }
-
-    return href(parse($thing), 'https://twitter.com/share' . join_qs($qs), array(
-        'class' => $class,
-    )) . '<script src="//platform.twitter.com/widgets.js"></script>';
-}
-
-/**
- * Renders a Follow button.
- *
- * @param  array  $atts  Attributes
- * @param  string $thing Contained statement
- * @return string
- */
-
-function arc_twitter_follow($atts, $thing = null)
-{
-    extract(lAtts(array(
-        'user'   => get_pref('arc_twitter_user'),
-        'lang'   => 'en',
-        'count'  => 'true',
-        'class'  => 'twitter-follow-button',
-    ), $atts));
-
-    if ($thing === null)
-    {
-        $thing = 'Follow @'.txpspecialchars($user);
-    }
-
-    return href(parse($thing), 'https://twitter.com/'.urlencode($user), array(
-        'data-lang'       => $lang,
-        'data-show-count' => $count,
-        'class'           => $class,
-    )) . '<script src="//platform.twitter.com/widgets.js"></script>';
 }
