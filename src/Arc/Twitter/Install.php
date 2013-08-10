@@ -14,8 +14,7 @@ class Arc_Twitter_Install
 
     protected $prefs = array(
         'user'                => array('text_input', ''),
-        'prefix'              => array('text_input', 'Just posted:'),
-        'suffix'              => array('text_input', ''),
+        'message'             => array('text_input', 'Just posted: {title} {url}'),
         'tweet'               => array('yesnoradio', 1),
         'access_token'        => array('text_input', ''),
         'access_token_secret' => array('text_input', ''),

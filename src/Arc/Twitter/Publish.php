@@ -44,19 +44,26 @@ class Arc_Twitter_Publish
             return;
         }
 
-        $status = array(
-            $arc_twitter_prefix,
-            $title,
-            $url,
-            $arc_twitter_suffix,
-        );
-
-        if (($over = strlen(trim(join(' ', $status))) - 140) && $over > 0)
+        foreach (array(1, 2) as $iteration)
         {
-            $status[1] = substr($status[1], 0, $over * -1);
-        }
+            $status = strtr(get_pref('arc_twitter_message'), array(
+                '{title}' => $title,
+                '{url}'   => $url,
+            ));
 
-        $status = trim(join(' ', $status));
+            if ($over = min(0, strlen($status) - 140))
+            {
+                if ($iteartion === 1)
+                {
+                    $title = trim(substr($title, 0, min(strlen($title) - $over, 5))).'...';
+                    continue;
+                }
+
+                return; // TODO: too long status message error
+            }
+
+            break;
+        }
 
         $twitter = new Arc_Twitter_API();
         $result = $twitter->statusesUpdate($status);
@@ -75,26 +82,38 @@ class Arc_Twitter_Publish
 
     /**
      * Tweet options group on Write panel.
+     *
+     * @param  string $event
+     * @param  string $step
+     * @param  string $default
+     * @param  array  $rs
+     * @return string
      */
 
     public function ui($event, $step, $default, $rs)
     {
-        return $default . wrapRegion(
+        extract(gpsa(array(
             'arc_twitter_tweet',
+            'arc_twitter_message',
+        )));
+
+        if (!isset($_POST['arc_twitter_message']))
+        {
+            $arc_twitter_message = get_pref('arc_twitter_message');
+            $arc_twitter_tweet = get_pref('arc_twitter_tweet');
+        }
+
+        return $default . wrapRegion(
+            'arc_twitter_share_article',
 
             graf(
-                checkbox('arc_twitter_tweet', 1, '', '', 'reset_time').
-                tag(gTxt('arc_twitter_tweet_this'), 'label', array('for' => 'reset_time'))
+                checkbox('arc_twitter_tweet', 1, (bool) $arc_twitter_tweet, 0, 'arc_twitter_tweet').
+                tag(gTxt('arc_twitter_tweet_this'), 'label', array('for' => 'arc_twitter_tweet'))
             ).
 
             graf(
-                tag(gTxt('arc_twitter_prefix'), 'label', array('for' => 'arc_twitter_prefix')).br.
-                fInput('text', 'arc_twitter_prefix', '', '', '', '', INPUT_REGULAR, '', 'arc_twitter_prefix')
-            ).
-
-            graf(
-                tag(gTxt('arc_twitter_suffix'), 'label', array('for' => 'arc_twitter_suffix')).br.
-                fInput('text', 'arc_twitter_suffix', '', '', '', '', INPUT_REGULAR, '', 'arc_twitter_suffix')
+                tag(gTxt('arc_twitter_message'), 'label', array('for' => 'arc_twitter_message')).br.
+                fInput('text', 'arc_twitter_message', $arc_twitter_message, '', '', '', INPUT_REGULAR, 0, 'arc_twitter_message')
             ),
 
             '',
