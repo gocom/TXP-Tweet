@@ -37,7 +37,7 @@ class Arc_Twitter_Pref_Fields
         }
 
         return 
-            n.href(gTxt('arc_twitter_authorize'), hu.'?arc_twitter_oauth=authorize', array(
+            n.href(gTxt('arc_twitter_authorize'), hu.'?arc_twitter_oauth=Authorize', array(
                 'class' => 'navlink',
             )).
             n.href(gTxt('arc_twitter_unlink'), array(
