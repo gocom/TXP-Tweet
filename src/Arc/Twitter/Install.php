@@ -9,12 +9,13 @@ class Arc_Twitter_Install
     /**
      * An array of plugin preference strings.
      *
-     * @var array
+     * @var  array
+     * @todo Protect keys from direct reading, see rah_backup_dropbox
      */
 
     protected $prefs = array(
         'user'                => array('text_input', ''),
-        'message'             => array('text_input', 'Just posted: {title} {url}'),
+        'message'             => array('text_input', '{title} {url}'),
         'tweet'               => array('yesnoradio', 1),
         'access_token'        => array('text_input', ''),
         'access_token_secret' => array('text_input', ''),

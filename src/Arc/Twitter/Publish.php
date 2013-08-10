@@ -51,6 +51,8 @@ class Arc_Twitter_Publish
                 '{url}'   => $url,
             ));
 
+            // TODO: this is wrong. Doesn't support UNICODE.
+
             if ($over = min(0, strlen($status) - 140))
             {
                 if ($iteartion === 1)
@@ -96,6 +98,8 @@ class Arc_Twitter_Publish
             'arc_twitter_tweet',
             'arc_twitter_message',
         )));
+
+        // TODO: pull and display used values on already shared articles.
 
         if (!isset($_POST['arc_twitter_message']))
         {

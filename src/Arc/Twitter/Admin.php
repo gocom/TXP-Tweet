@@ -2,6 +2,8 @@
 
 /**
  * Admin handler.
+ *
+ * @todo Remove?
  */
 
 class Arc_Twitter_Admin
