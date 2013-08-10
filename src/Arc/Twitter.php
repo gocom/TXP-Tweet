@@ -35,6 +35,7 @@ function arc_twitter($atts, $thing = null)
         'mention'      => '',
         'reply'        => '',
         'hashtags'     => '',
+        'status'       => '',
     ), $atts));
 
     if ($article)
@@ -77,7 +78,15 @@ function arc_twitter($atts, $thing = null)
     }
     else if ($timeline === 'mentions')
     {
-        $tweets = $twitter->statusesMentionsTimeline($limit, null, null, null, null, null);
+        $tweets = $twitter->statusesMentionsTimeline($limit);
+    }
+    else if ($timeline === 'retweets')
+    {
+        $tweets = $twitter->statusesRetweets($status);
+    }
+    else if ($timeline === 'show')
+    {
+        $tweets = $twitter->statusesShow($status);
     }
     else if ($timeline === 'search')
     {
