@@ -14,11 +14,13 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
 
     public function __construct($consumerKey, $consumerSecret)
     {
-        parent::__construct(
-            get_pref('arc_twitter_consumer_key'),
-            get_pref('arc_twitter_consumer_secret')
-        );
+        if ($consumerKey === null)
+        {
+            $consumerKey = get_pref('arc_twitter_consumer_key');
+            $consumerSecret = get_pref('arc_twitter_consumer_secret');
+        }
 
+        parent::__construct($consumerKey, $consumerSecret);
         $this->setOAuthToken(get_pref('arc_twitter_access_token'));
         $this->setOAuthTokenSecret(get_pref('arc_twitter_access_token_secret'));
     }

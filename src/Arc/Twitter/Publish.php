@@ -67,7 +67,7 @@ class Arc_Twitter_Publish
             break;
         }
 
-        $twitter = new Arc_Twitter_API();
+        $twitter = new Arc_Twitter_API(null, null);
         $result = $twitter->statusesUpdate($status);
 
         if ($result && $result['id'])

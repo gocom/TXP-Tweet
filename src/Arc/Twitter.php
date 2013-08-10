@@ -69,7 +69,7 @@ function arc_twitter($atts, $thing = null)
         return txpspecialchars($tweet[$type]); // TODO: support nested keys.
     }
 
-    $twitter = new Arc_Twitter_API();
+    $twitter = new Arc_Twitter_API(null, null);
 
     if ($timeline === 'home')
     {
