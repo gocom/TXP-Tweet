@@ -20,8 +20,8 @@ class Arc_Twitter_Install
         'tweet_default'       => array('yesnoradio', 1),
         'access_token'        => array('text_input', ''),
         'access_token_secret' => array('text_input', ''),
-        'consumerkey'         => array('text_input', ''),
-        'consumersecret'      => array('text_input', ''),
+        'consumer_key'        => array('text_input', ''),
+        'consumer_secret'     => array('text_input', ''),
     );
 
     /**
