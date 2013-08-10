@@ -32,4 +32,22 @@ class Arc_Twitter_Admin_Article extends Arc_Twitter_Admin_Base
             // TODO: throw an error alert with announce API.
         }
     }
+
+    /**
+     * {@inheritdoc}
+     */
+
+    public function getTitle()
+    {
+        return trim(safe_field('Title', 'textpattern', 'ID = '.intval($r['ID']).' and Status = '.STATUS_LIVE));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+
+    public function getURL()
+    {
+        return permlinkurl_id($this->insertData['ID']);
+    }
 }

@@ -7,6 +7,14 @@
 class Arc_Twitter_Admin_Base implements Arc_Twitter_Admin_Template
 {
     /**
+     * Inserted data.
+     *
+     * @var array
+     */
+
+    protected $insertData = '';
+
+    /**
      * {@inheritdoc}
      */
 
@@ -18,12 +26,19 @@ class Arc_Twitter_Admin_Base implements Arc_Twitter_Admin_Template
             'arc_twitter_tweet',
         )));
 
-        // Title is escaped for SQL in 4.5.x. Due to this bug, we need to pull it from the DB.
-
-        if (!$arc_twitter_tweet || !($url = permlinkurl_id($r['ID'])) || !($title = trim(safe_field('Title', 'textpattern', 'ID = '.intval($r['ID']).' and Status = '.STATUS_LIVE))))
+        if (!$arc_twitter_tweet)
         {
             return;
         }
+
+        $this->insertData = $r;
+
+        if (!($title = $this->getTitle()) || !($url = $this->getURL()))
+        {
+            return;
+        }
+
+        // TODO: requires an adapter.
 
         if (safe_row('arc_twitter', "article = ".intval($r['ID'])))
         {

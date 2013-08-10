@@ -32,4 +32,20 @@ interface Arc_Twitter_Admin_Template
      */
 
     public function ui($event, $step, $default, $rs);
+
+    /**
+     * Gets the item title for the status message.
+     *
+     * @return string
+     */
+
+    public function getTitle();
+
+    /**
+     * Gets the item URL for the status message.
+     *
+     * @return string
+     */
+
+    public function getURL();
 }
