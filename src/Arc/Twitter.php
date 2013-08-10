@@ -216,7 +216,7 @@ function arc_twitter_share($atts, $thing = null)
 
     return href(parse($thing), 'https://twitter.com/share' . join_qs($qs), array(
         'class' => $class,
-    )) . '<script src="http://platform.twitter.com/widgets.js"></script>';
+    )) . '<script src="https://platform.twitter.com/widgets.js"></script>';
 }
 
 /**
@@ -241,9 +241,9 @@ function arc_twitter_follow($atts, $thing = null)
         $thing = 'Follow @'.txpspecialchars($user);
     }
 
-    return href(parse($thing), 'http://twitter.com/'.urlencode($user), array(
+    return href(parse($thing), 'https://twitter.com/'.urlencode($user), array(
         'data-lang'       => $lang,
         'data-show-count' => $count,
         'class'           => $class,
-    )) . '<script src="http://platform.twitter.com/widgets.js"></script>';
+    )) . '<script src="https://platform.twitter.com/widgets.js"></script>';
 }
