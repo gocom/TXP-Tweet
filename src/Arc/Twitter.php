@@ -227,7 +227,7 @@ function arc_twitter_share($atts, $thing = null)
  * @return string
  */
 
-function arc_twitter_follow_button($atts, $thing = null)
+function arc_twitter_follow($atts, $thing = null)
 {
     extract(lAtts(array(
         'user'   => get_pref('arc_twitter_user'),
