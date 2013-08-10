@@ -104,8 +104,9 @@ class Arc_Twitter_Auth
         	return;
         }
 
-        $this->unlinkAccount();
-
+        set_pref('arc_twitter_account_linked', 0);
+        set_pref('arc_twitter_access_token', '');
+        set_pref('arc_twitter_access_token_secret', '');
         set_pref('arc_twitter_consumer_key', '');
         set_pref('arc_twitter_consumer_secret', '');
     }
