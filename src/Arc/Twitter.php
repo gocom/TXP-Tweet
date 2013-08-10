@@ -175,81 +175,48 @@ function arc_twitter_search($atts)
 
 }
 
-/*
- * Public tag for outputting widget JS
+/**
+ * Renders a Share button.
+ *
+ * @param  array  $atts  Attributes
+ * @param  string $thing Contained statement
+ * @return string
  */
-function arc_twitter_widget_js()
-{
-    return _arc_twitter_widget_js();
-}
 
-function _arc_twitter_widget_js()
+function arc_twitter_share($atts, $thing = null)
 {
-    return '<script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>';
-}
-
-
-function arc_twitter_tweet_button($atts, $thing=null)
-{
-    global $prefs, $thisarticle;
+    global $thisarticle;
 
     extract(lAtts(array(
-        'user'        => $prefs['arc_twitter_user'], // via user account
-        'url'         => '',
-        'text'        => '',
-        'follow1'     => '',
-        'follow2'     => '',
-        'lang'        => 'en',
-        'count'       => 'horizontal',
-        'include_js'  => true,
-        'optimise_js' => false,
-        'wraptag'     => '',
-        'class'       => 'twitter-share-button'
-    ),$atts));
+        'via'     => get_pref('arc_twitter_user'),
+        'url'     => null,
+        'text'    => null,
+        'related' => '',
+        'lang'    => 'en',
+        'count'   => 'horizontal',
+        'class'   => 'twitter-share-button',
+    ), $atts));
 
-    $q = ''; // query string
+    $qs = $atts;
+    $qs['related'] = join(':', do_list($related));
+    unset($qs['class']);
 
-    if ($id=$thisarticle['thisid']) {
-      // Fetch arc_twitter stuff to build tweet from
-      $row = safe_row("REPLACE(tweet,CONCAT(' ',tinyurl),'') AS tweet,tinyurl"
-        , 'arc_twitter', "article_id={$id}");
+    if (!empty($thisarticle['thisid']))
+    {
+        if ($url === null)
+        {
+            $qs['url'] = permlinkurl($thisarticle);
+        }
 
-      if ($url=='') {
-        $url = ($url) ? $url : permlinkurl($thisarticle);
-        $q = 'url='.urlencode($url);
-      }
-      if ($text=='') {
-        $text = ($row['tweet']) ? $row['tweet'] : $thisarticle['title'];
-      }
-      $q .= ($q ? '&amp;' : '').'text='.urlencode($text);
-    }
-    if ($user) {
-      $q .= ($q ? '&amp;' : '').'via='.urlencode($user);
-    }
-    if ($follow1&&$follow2) {
-      $q .= ($q ? '&amp;' : '').'related='.urlencode($follow1.':'.$follow2);
-    } elseif ($follow1||$follow2) {
-      $q .= ($q ? '&amp;' : '').'related='.urlencode($follow1.$follow2);
+        if ($text === null)
+        {
+            $qs['text'] = $thisarticle['title'];
+        }
     }
 
-    
-    $q .= ($q ? '&amp;' : '').'lang='.urlencode($lang);
-
-    switch ($count) {
-      case 'none': break; case 'vertical': break;
-      default:
-        $count = 'horizontal';
-    }
-    $q .= ($q ? '&amp;' : '').'count='.urlencode($count);
-
-    $thing = ($thing===null) ? 'Tweet' : parse($thing);
-
-    $html = href($thing,'http://twitter.com/share?'.$q
-      , ' class="'.$class.'"');
-
-    $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
-
-    return $js.$html;
+    return href(parse($thing), 'https://twitter.com/share' . join_qs($qs), array(
+        'class' => $class,
+    )) . '<script src="http://platform.twitter.com/widgets.js"></script>';
 }
 
 /**
