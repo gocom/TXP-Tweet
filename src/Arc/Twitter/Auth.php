@@ -21,6 +21,8 @@ class Arc_Twitter_Auth
     public function __construct()
     {
         register_callback(array($this, 'endpoint'), 'textpattern');
+        register_callback(array($this, 'unlinkAccount'), 'prefs');
+        register_callback(array($this, 'unlinkApplication'), 'prefs');
     }
 
     /**
@@ -73,5 +75,38 @@ class Arc_Twitter_Auth
 
         $this->api->oAuthAccessToken(gps('oauth_token'), gps('oauth_verifier'));
         set_pref('arc_twitter_account_linked', 1);
+    }
+
+    /**
+     * Unlinks account.
+     */
+
+    public function unlinkAccount()
+    {
+        if (!gps('arc_twitter_unlink_account') || !has_privs('prefs.arc_twitter'))
+        {
+        	return;
+        }
+
+        set_pref('arc_twitter_account_linked', 0);
+        set_pref('arc_twitter_access_token', '');
+        set_pref('arc_twitter_access_token_secret', '');
+    }
+
+    /**
+     * Unlinks application.
+     */
+
+    public function unlinkApplication()
+    {
+        if (!gps('arc_twitter_unlink_application') || !has_privs('prefs.arc_twitter'))
+        {
+        	return;
+        }
+
+        $this->unlinkAccount();
+
+        set_pref('arc_twitter_consumer_key', '');
+        set_pref('arc_twitter_consumer_secret', '');
     }
 }

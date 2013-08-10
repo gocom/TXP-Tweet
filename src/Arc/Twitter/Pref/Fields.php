@@ -27,22 +27,27 @@ class Arc_Twitter_Pref_Fields
                 ));
         }
 
-        if (get_pref('arc_twitter_access_token'))
+        if (get_pref('arc_twitter_account_linked'))
         {
             return
-                n.href(gTxt('arc_twitter_unlink'), array(
-                    'event'              => $event,
-                    'arc_twitter_unlink' => 1,
+                n.href(gTxt('arc_twitter_unlink_account'), array(
+                    'event'                      => $event,
+                    'arc_twitter_unlink_account' => 1,
+                ), array('class' => 'navlink')).
+
+                n.href(gTxt('arc_twitter_unlink_application'), array(
+                    'event'                          => $event,
+                    'arc_twitter_unlink_application' => 1,
                 ), array('class' => 'navlink'));
         }
 
-        return 
+        return
             n.href(gTxt('arc_twitter_authorize'), hu.'?arc_twitter_oauth=Authorize', array(
                 'class' => 'navlink',
             )).
-            n.href(gTxt('arc_twitter_unlink'), array(
-                'event'              => $event,
-                'arc_twitter_unlink' => 1,
+            n.href(gTxt('arc_twitter_unlink_application'), array(
+                'event'                          => $event,
+                'arc_twitter_unlink_application' => 1,
             ));
     }
 
