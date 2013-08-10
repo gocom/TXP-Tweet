@@ -66,7 +66,7 @@ class Arc_Twitter_Publish
             safe_insert(
                 'arc_twitter',
                 "article = ".intval($r['ID']).",
-                tweet_id = '".doSlash($result['id'])."',
+                status_id = '".doSlash($result['id'])."',
                 status = '".doSlash($status)."',
                 url = '".doSlash($url)."'"
             );

@@ -44,7 +44,7 @@ class Arc_Twitter_Install
             "CREATE TABLE IF NOT EXISTS ".safe_pfx('arc_twitter')." (
                 id INTEGER(11) AUTO_INCREMENT PRIMARY KEY,
                 article INTEGER(11) NOT NULL default 0,
-                tweet_id VARCHAR(255) NOT NULL default '',
+                status_id VARCHAR(255) NOT NULL default '',
                 status VARCHAR(140) NOT NULL default '',
                 url VARCHAR(255) NOT NULL default ''
             ) PACK_KEYS=1 AUTO_INCREMENT=1 CHARSET=utf8"

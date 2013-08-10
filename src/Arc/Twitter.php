@@ -17,6 +17,7 @@ function arc_twitter($atts, $thing = null)
     static $tweet = array();
 
     extract(lAtts(array(
+        'article'      => null,
         'type'         => null,
         'format'       => 'since',
         'user'         => get_pref('arc_twitter_user'),
@@ -29,13 +30,35 @@ function arc_twitter($atts, $thing = null)
         'break'        => '',
         'wraptag'      => '',
         'class'        => 'arc_twitter',
+        'title'        => '',
     ), $atts));
+
+    if ($article)
+    {
+        $tweet = (object) safe_row('*', 'arc_twitter', "article = '".doSlash($article)."'");
+        return parse($thing);
+    }
 
     if ($type !== null)
     {
         if ($type === 'created_at')
         {
             return safe_strftime($format, strtotime($tweet->created_at));
+        }
+
+        if ($type === 'status_url')
+        {
+            $url = 'https://twitter.com/'.urlencode($user).'/status/'.urlencode($tweet->status_id);
+
+            if ($thing === null)
+            {
+                return $url;
+            }
+
+            return href(parse($thing), $url, array(
+                'class' => $class,
+                'title' => $title,
+            ));
         }
 
         return txpspecialchars($tweet->{$type});
@@ -150,53 +173,6 @@ function arc_twitter_search($atts)
         } return doLabel($label, $labeltag)
             .doWrap($out, $wraptag, $break, $class); }
 
-}
-
-function arc_twitter_tweet($atts) {
-    global $thisarticle;
-
-    extract(lAtts(array(
-      'id'        => $thisarticle['thisid'],
-      'include_url'   => true
-    ),$atts));
-
-    if ($id) {
-      // Fetch arc_twitter stuff to build tweet from
-      $tweet = ($include_url) ? safe_row("tweet", 'arc_twitter', "article_id={$id}")
-        : safe_row("REPLACE(tweet,CONCAT(' ',tinyurl),'') AS tweet"
-          , 'arc_twitter', "article_id={$id}");
-    }
-
-    if ($tweet['tweet']) {
-      return arc_Twitter::makeLinks(
-        htmlentities($tweet['tweet'], ENT_QUOTES,'UTF-8'));
-    }
-}
-
-function arc_twitter_tweet_url($atts, $thing=null) {
-    global $thisarticle,$prefs;
-
-    extract(lAtts(array(
-      'id'      => $thisarticle['thisid'],
-      'title'   => '',
-      'class'   => ''
-    ),$atts));
-
-    if ($id) {
-      // Fetch arc_twitter stuff to build tweet from
-      $tweet = safe_row("tweet_id"
-        , 'arc_twitter', "article_id={$id}");
-    }
-
-    if ($tweet['tweet_id']) {
-      $url = "http://twitter.com/".$prefs['arc_twitter_user']."/status/".$tweet['tweet_id'];
-      if ($thing===null) {
-        return $url;
-      }
-      return href(parse($thing), $url,
-        ($title ? ' title="'.$title.'"' : '')
-        .($class ? ' class="'.$class.'"' : ''));
-    }
 }
 
 /*
