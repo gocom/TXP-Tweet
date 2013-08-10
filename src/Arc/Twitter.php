@@ -88,6 +88,10 @@ function arc_twitter($atts, $thing = null)
     {
         $tweets = $twitter->statusesShow($status);
     }
+    else if ($timeline === 'favorites')
+    {
+        $tweets = $twitter->favoritesList(null, $user, $limit);
+    }
     else if ($timeline === 'search')
     {
         $q = do_list($search);
