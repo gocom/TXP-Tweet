@@ -126,5 +126,3 @@ class Arc_Twitter_Publish
         );
     }
 }
-
-new Arc_Twitter_Publish();
