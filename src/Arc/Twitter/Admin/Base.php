@@ -1,27 +1,13 @@
 <?php
 
 /**
- * Auto-publish tweets.
+ * Share content items on Twitter.
  */
 
-class Arc_Twitter_Publish
+class Arc_Twitter_Admin_Base implements Arc_Twitter_Admin_Template
 {
     /**
-     * Constructor.
-     */
-
-    public function __construct()
-    {
-        register_callback(array($this, 'tweet'), 'article_saved');
-        register_callback(array($this, 'tweet'), 'article_posted');
-        register_callback(array($this, 'ui'), 'article_ui', 'status');
-    }
-
-    /**
-     * Publishes the article on Twitter.
-     *
-     * @todo Shorten the URL
-     * @todo Catch Exceptions thrown by Twitter API
+     * {@inheritdoc}
      */
 
     public function tweet($event, $step, $r)
@@ -72,6 +58,8 @@ class Arc_Twitter_Publish
 
         if ($result && $result['id'])
         {
+            // TODO: requires an adapter.
+
             safe_insert(
                 'arc_twitter',
                 "article = ".intval($r['ID']).",
@@ -83,13 +71,7 @@ class Arc_Twitter_Publish
     }
 
     /**
-     * Tweet options group on Write panel.
-     *
-     * @param  string $event
-     * @param  string $step
-     * @param  string $default
-     * @param  array  $rs
-     * @return string
+     * {@inheritdoc}
      */
 
     public function ui($event, $step, $default, $rs)

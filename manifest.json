@@ -14,7 +14,9 @@
         "./src/Arc/Twitter/Pref/Fields.php",
         "./src/Arc/Twitter/API.php",
         "./src/Arc/Twitter/Install.php",
-        "./src/Arc/Twitter/Publish.php",
+        "./src/Arc/Twitter/Admin/Template.php",
+        "./src/Arc/Twitter/Admin/Base.php",
+        "./src/Arc/Twitter/Admin/Article.php",
         "./src/Arc/Twitter.php"
     ]}
 }

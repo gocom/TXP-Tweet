@@ -2,7 +2,7 @@
 
 new Arc_Twitter_Install();
 new Arc_Twitter_Admin();
-new Arc_Twitter_Publish();
+new Arc_Twitter_Admin_Article();
 new Arc_Twitter_Auth();
 
 /**
