@@ -21,81 +21,8 @@ class Arc_Twitter
         new Arc_Twitter_Admin_Article();
         new Arc_Twitter_Auth();
 
-        Textpattern_Tag_Registry::register(array($this, 'follow'), 'arc_twitter_follow');
-        Textpattern_Tag_Registry::register(array($this, 'share'), 'arc_twitter_share');
-    }
-
-    /**
-     * Renders a follow button.
-     *
-     * @param  array  $atts  Attributes
-     * @param  string $thing Contained statement
-     * @return string
-     */
-
-    public function follow($atts, $thing = null)
-    {
-        extract(lAtts(array(
-            'user'   => '',
-            'lang'   => 'en',
-            'count'  => 'true',
-            'class'  => 'twitter-follow-button',
-        ), $atts));
-
-        if ($thing === null)
-        {
-            $thing = 'Follow @'.txpspecialchars($user);
-        }
-
-        return href(parse($thing), 'https://twitter.com/'.urlencode($user), array(
-            'data-lang'       => $lang,
-            'data-show-count' => $count,
-            'class'           => $class,
-        )) . '<script src="//platform.twitter.com/widgets.js"></script>';
-    }
-
-    /**
-     * Renders a share button.
-     *
-     * @param  array  $atts  Attributes
-     * @param  string $thing Contained statement
-     * @return string
-     */
-
-    public function share($atts, $thing = null)
-    {
-        global $thisarticle;
-
-        extract(lAtts(array(
-            'via'     => '',
-            'url'     => null,
-            'text'    => null,
-            'related' => '',
-            'lang'    => 'en',
-            'count'   => 'horizontal',
-            'class'   => 'twitter-share-button',
-        ), $atts));
-
-        $qs = $atts;
-        $qs['related'] = join(':', do_list($related));
-        unset($qs['class']);
-
-        if (!empty($thisarticle['thisid']))
-        {
-            if ($url === null)
-            {
-                $qs['url'] = permlinkurl($thisarticle);
-            }
-
-            if ($text === null)
-            {
-                $qs['text'] = $thisarticle['title'];
-            }
-        }
-
-        return href(parse($thing), 'https://twitter.com/share' . join_qs($qs), array(
-            'class' => $class,
-        )) . '<script src="//platform.twitter.com/widgets.js"></script>';
+        Textpattern_Tag_Registry::register(array('Arc_Twitter_Tag_Button', 'follow'), 'arc_twitter_follow');
+        Textpattern_Tag_Registry::register(array('Arc_Twitter_Tag_Button', 'share'), 'arc_twitter_share');
     }
 
     /**
