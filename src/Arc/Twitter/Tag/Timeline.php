@@ -173,7 +173,7 @@ class Arc_Twitter_Tag_Timeline
             'title' => '',
         ), $atts));
 
-        $url = 'https://twitter.com/'.urlencode($user).'/status/'.urlencode($tweet['status_id']);
+        $url = 'https://twitter.com/'.urlencode($user).'/status/'.urlencode($this->current['status_id']);
 
         if ($thing === null)
         {
