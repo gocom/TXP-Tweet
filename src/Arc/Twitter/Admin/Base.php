@@ -118,7 +118,7 @@ class Arc_Twitter_Admin_Base implements Arc_Twitter_Admin_Template
 
             '',
 
-            gTxt('arc_twitter')
+            gTxt('arc_twitter_share')
         );
     }
 }
