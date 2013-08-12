@@ -34,7 +34,7 @@ class Arc_Twitter_Tag_Timeline
             'article'      => null,
             'user'         => '',
             'timeline'     => 'user',
-            'limit'        => 10,
+            'limit'        => 10, // TODO: Twitter filters tweets after fetching, calculate count.
             'retweets'     => 0,
             'replies'      => 1,
             'label'        => '',
