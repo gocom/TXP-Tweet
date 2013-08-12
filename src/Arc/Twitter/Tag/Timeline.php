@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Collection of Twitter timeline template tags.
+ */
+
 class Arc_Twitter_Tag_Timeline
 {
     /**
