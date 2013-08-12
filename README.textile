@@ -11,17 +11,6 @@ h2. Install
 
 Todo. Will use Composer.
 
-h2. Credits
-
-* "Andy Carter":http://redhotchilliproject.com
-* "Tommy Schmucker":https://github.com/trenc
-
-h3. Thanks to
-
-* "Tijs Verkoyen":https://github.com/tijsverkoyen for "TwitterOAuth":https://github.com/tijsverkoyen/TwitterOAuth wrapper
-* "Michael Manfre":http://manfre.net/ for inspirational mem_twitter
-* "Abraham Williams":http://twitter.com/abraham for the original Twitter API wrapper
-
 h2. Tags and attributes
 
 h3. arc_twitter
@@ -177,3 +166,14 @@ Renders Twitter Follow button.
 h4. Attributes
 
 Todo.
+
+h2. Credits
+
+* "Andy Carter":http://redhotchilliproject.com
+* "Tommy Schmucker":https://github.com/trenc
+
+h3. Thanks to
+
+* "Tijs Verkoyen":https://github.com/tijsverkoyen for "TwitterOAuth":https://github.com/tijsverkoyen/TwitterOAuth wrapper
+* "Michael Manfre":http://manfre.net/ for inspirational mem_twitter
+* "Abraham Williams":http://twitter.com/abraham for the original Twitter API wrapper
