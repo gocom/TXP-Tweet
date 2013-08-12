@@ -35,7 +35,7 @@ class Arc_Twitter_Tag_Timeline
             'user'         => '',
             'timeline'     => 'user',
             'limit'        => 10,
-            'retweets'     => 0,
+            'retweets'     => 1,
             'replies'      => 1,
             'label'        => '',
             'labeltag'     => '',
