@@ -104,7 +104,7 @@ class Arc_Twitter_Admin_Base implements Arc_Twitter_Admin_Template
         }
 
         return $default . wrapRegion(
-            'arc_twitter_share_article',
+            'arc_twitter_share',
 
             graf(
                 checkbox('arc_twitter_tweet', 1, (bool) $arc_twitter_tweet, 0, 'arc_twitter_tweet').
