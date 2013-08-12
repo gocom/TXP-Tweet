@@ -60,7 +60,15 @@ class Arc_Twitter_Tag_Timeline
 
         if (!$this->api)
         {
-            $this->api = new Arc_Twitter_API(null, null);
+            try
+            {
+                $this->api = new Arc_Twitter_API(null, null);
+            }
+            catch (Exception $e)
+            {
+                trigger_error($e->getMessage());
+                return '';
+            }
         }
 
         $method = 'timeline'.ucfirst($timeline);

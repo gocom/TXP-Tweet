@@ -18,6 +18,11 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
             $consumerSecret = get_pref('arc_twitter_consumer_secret');
         }
 
+        if (!$consumerKey || !$consumerSecret)
+        {
+            throw new Exception('Please provide Twitter application consumer key and secret before proceeding.');
+        }
+
         parent::__construct($consumerKey, $consumerSecret);
         $this->oAuthToken = get_pref('arc_twitter_access_token');
         $this->oAuthTokenSecret = get_pref('arc_twitter_access_token_secret');
