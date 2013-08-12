@@ -73,6 +73,7 @@ class Arc_Twitter_Auth
             return;
         }
 
+        // TODO: store the authenticated user's screen name.
         $this->api->oAuthAccessToken(gps('oauth_token'), gps('oauth_verifier'));
         set_pref('arc_twitter_account_linked', 1);
     }
