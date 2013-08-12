@@ -40,10 +40,11 @@ These global attributes are available for any type of timeline.
 
 *timeline*
 Returned timeline type. Accepted values are @home@, @user@, @mentions@, @retweets@, @status@, @favorites@ and @search@.
+Example: @timeline="home"@ Default: @"user"@
 
 *limit*
 Maximum number of tweets to return. Integer from 1 to 200.
-Example: @limit="25"@ Default: @10@
+Example: @limit="25"@ Default: @"10"@
 
 *label*
 Label prepended to the list.
