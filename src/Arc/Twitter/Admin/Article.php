@@ -39,7 +39,7 @@ class Arc_Twitter_Admin_Article extends Arc_Twitter_Admin_Base
 
     public function getTitle()
     {
-        return trim(safe_field('Title', 'textpattern', 'ID = '.intval($r['ID']).' and Status = '.STATUS_LIVE));
+        return trim(safe_field('Title', 'textpattern', 'ID = '.intval($this->getID()).' and Status = '.STATUS_LIVE));
     }
 
     /**
@@ -48,6 +48,15 @@ class Arc_Twitter_Admin_Article extends Arc_Twitter_Admin_Base
 
     public function getURL()
     {
-        return permlinkurl_id($this->insertData['ID']);
+        return permlinkurl_id($this->getID());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+
+    public function getID()
+    {
+        return (int) $this->insertData['ID'];
     }
 }

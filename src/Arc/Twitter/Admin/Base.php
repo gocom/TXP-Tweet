@@ -38,9 +38,7 @@ class Arc_Twitter_Admin_Base implements Arc_Twitter_Admin_Template
             return;
         }
 
-        // TODO: requires an adapter.
-
-        if (safe_row('arc_twitter', "article = ".intval($r['ID'])))
+        if ($this->shared())
         {
             return;
         }
@@ -71,13 +69,11 @@ class Arc_Twitter_Admin_Base implements Arc_Twitter_Admin_Template
         $twitter = new Arc_Twitter_API(null, null);
         $result = $twitter->statusesUpdate($status);
 
-        if ($result && $result['id'])
+        if ($result)
         {
-            // TODO: requires an adapter.
-
             safe_insert(
                 'arc_twitter',
-                "article = ".intval($r['ID']).",
+                "item = ".intval($this->getID()).",
                 status_id = '".doSlash($result['id'])."',
                 url = '".doSlash($url)."'"
             );
@@ -95,7 +91,10 @@ class Arc_Twitter_Admin_Base implements Arc_Twitter_Admin_Template
             'arc_twitter_message',
         )));
 
-        // TODO: pull and display used values on already shared articles.
+        if ($r = $this->shared())
+        {
+            return $default;
+        }
 
         if (!isset($_POST['arc_twitter_message']))
         {
@@ -120,5 +119,24 @@ class Arc_Twitter_Admin_Base implements Arc_Twitter_Admin_Template
 
             gTxt('arc_twitter_share')
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+
+    public function getType()
+    {
+        global $event;
+        return $event;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+
+    public function shared()
+    {
+        return safe_row('arc_twitter', "type = '".doSlash($this->getType())"' and item = ".intval($this->getID()));
     }
 }

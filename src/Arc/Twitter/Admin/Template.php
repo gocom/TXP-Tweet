@@ -48,4 +48,28 @@ interface Arc_Twitter_Admin_Template
      */
 
     public function getURL();
+
+    /**
+     * Gets the item type.
+     *
+     * @return string
+     */
+
+    public function getType();
+
+    /**
+     * Gets the item ID.
+     *
+     * @return int
+     */
+
+    public function getID();
+
+    /**
+     * Gets the shared item.
+     *
+     * @return array|bool
+     */
+
+    public function shared();
 }
