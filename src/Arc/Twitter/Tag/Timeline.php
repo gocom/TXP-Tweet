@@ -34,7 +34,7 @@ class Arc_Twitter_Tag_Timeline
             'article'      => null,
             'user'         => '',
             'timeline'     => 'user',
-            'limit'        => 10, // TODO: Twitter filters tweets after fetching, calculate count.
+            'limit'        => 10,
             'retweets'     => 0,
             'replies'      => 1,
             'label'        => '',
@@ -57,10 +57,11 @@ class Arc_Twitter_Tag_Timeline
         }
 
         $twitter = new Arc_Twitter_API(null, null);
+        $count = max(200, min(20, $limit));
 
         if ($timeline === 'home')
         {
-            $tweets = $twitter->statusesHomeTimeline($limit, null, null, null, !$replies, null, null);
+            $tweets = $twitter->statusesHomeTimeline($count, null, null, null, !$replies, null, null);
         }
         else if ($timeline === 'mentions')
         {
@@ -107,12 +108,13 @@ class Arc_Twitter_Tag_Timeline
         }
         else
         {
-            $tweets = $twitter->statusesUserTimeline(null, $user, null, $limit, null, null, !$replies, null, $retweets);
+            $tweets = $twitter->statusesUserTimeline(null, $user, null, $count, null, null, !$replies, null, $retweets);
         }
 
         if ($tweets)
         {
             $out = array();
+            $tweets = array_slice($tweets, 0, $limit);
 
             foreach ($tweets as $tweet)
             {
