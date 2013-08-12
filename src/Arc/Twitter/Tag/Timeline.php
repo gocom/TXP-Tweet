@@ -43,13 +43,13 @@ class Arc_Twitter_Tag_Timeline
     public function timeline($atts, $thing = null)
     {
         extract(lAtts(array(
-            'timeline'     => 'home',
-            'limit'        => 10,
-            'label'        => '',
-            'labeltag'     => '',
-            'break'        => '',
-            'wraptag'      => '',
-            'class'        => '',
+            'timeline' => 'home',
+            'limit'    => 10,
+            'label'    => '',
+            'labeltag' => '',
+            'break'    => '',
+            'wraptag'  => '',
+            'class'    => '',
         ), $atts, false));
 
         unset(
