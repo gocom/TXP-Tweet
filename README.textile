@@ -77,7 +77,7 @@ User timeline returns specified user's Twitter status updates. Its identical to 
 
 *user*
 Twitter username whose tweets will be displayed.
-Example: @user="example"@ Default: @""@
+Example: @user="example"@ Default: _authenticated user_
 
 *replies*
 Whether to include replies.
@@ -133,7 +133,7 @@ bc. <txp:arc_twitter timeline="favorites">
 
 *user*
 Twitter username whose tweets will be displayed.
-Example: @user="example"@ Default: @""@
+Example: @user="example"@ Default: _authenticated user_
 
 h5. Search
 

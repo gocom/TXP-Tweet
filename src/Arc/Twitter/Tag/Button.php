@@ -17,7 +17,7 @@ class Arc_Twitter_Tag_Button
     static public function follow($atts, $thing = null)
     {
         extract(lAtts(array(
-            'user'   => '',
+            'user'   => get_pref('arc_twitter_account'),
             'lang'   => 'en',
             'count'  => 'true',
             'class'  => 'twitter-follow-button',
@@ -48,7 +48,7 @@ class Arc_Twitter_Tag_Button
         global $thisarticle;
 
         extract(lAtts(array(
-            'via'     => '',
+            'via'     => get_pref('arc_twitter_account'),
             'url'     => null,
             'text'    => null,
             'related' => '',

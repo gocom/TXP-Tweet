@@ -19,7 +19,7 @@ class Arc_Twitter_Install
         'consumer_secret'     => array('Arc_Twitter_Pref_Fields->key', '', PREF_PLUGIN),
         'access_token'        => array('Arc_Twitter_Pref_Fields->token', '', PREF_PLUGIN),
         'access_token_secret' => array('text_input', '', PREF_HIDDEN),
-        'account_linked'      => array('yesnoRadio', 0, PREF_HIDDEN),
+        'account'             => array('text_input', '', PREF_HIDDEN),
     );
 
     /**

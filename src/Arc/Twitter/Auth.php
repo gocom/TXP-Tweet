@@ -34,7 +34,7 @@ class Arc_Twitter_Auth
         $auth = (string) gps('arc_twitter_oauth');
         $method = 'auth'.$auth;
 
-        if (!$auth || get_pref('arc_twitter_account_linked', 1) || !get_pref('arc_twitter_consumer_key') || !get_pref('arc_twitter_consumer_secret') || !method_exists($this, $method))
+        if (!$auth || get_pref('arc_twitter_account', 1) || !get_pref('arc_twitter_consumer_key') || !get_pref('arc_twitter_consumer_secret') || !method_exists($this, $method))
         {
             return;
         }
@@ -54,8 +54,16 @@ class Arc_Twitter_Auth
 
     protected function authAuthorize()
     {
-        $response = $this->api->oAuthRequestToken(hu . '?arc_twitter_oauth=AccessToken');
-        $this->api->oAuthAuthenticate($response['access_token']);
+        try
+        {
+            $response = $this->api->oAuthRequestToken(hu . '?arc_twitter_oauth=AccessToken');
+            $this->api->oAuthAuthenticate($response['access_token']);
+        }
+        catch (Exception $e)
+        {
+            die($e->getMessage());
+        }
+
         die;
     }
 
@@ -68,14 +76,28 @@ class Arc_Twitter_Auth
 
     protected function authAccessToken()
     {
-        if (!gps('oauth_token') || get_pref('arc_twitter_access_token') !== gps('oauth_token'))
+        if (!gps('oauth_token') || get_pref('arc_twitter_account') || get_pref('arc_twitter_access_token') !== gps('oauth_token'))
         {
             return;
         }
 
-        // TODO: store the authenticated user's screen name.
-        $this->api->oAuthAccessToken(gps('oauth_token'), gps('oauth_verifier'));
-        set_pref('arc_twitter_account_linked', 1);
+        try
+        {
+            $this->api->oAuthAccessToken(gps('oauth_token'), gps('oauth_verifier'));
+            $account = $this->api->accountVerifyCredentials();
+        }
+        catch (Exception $e)
+        {
+            die('Twitter API error: ' . $e->getMessage());
+        }
+
+        if (isset($account['screen_name']))
+        {
+            set_pref('arc_twitter_account', $account['screen_name']);
+            die(gTxt('arc_twitter_account_linked'));
+        }
+
+        die(gTxt('arc_twitter_unable_to_link_account'));
     }
 
     /**
@@ -89,7 +111,7 @@ class Arc_Twitter_Auth
         	return;
         }
 
-        set_pref('arc_twitter_account_linked', 0);
+        set_pref('arc_twitter_account', '');
         set_pref('arc_twitter_access_token', '');
         set_pref('arc_twitter_access_token_secret', '');
     }
@@ -105,7 +127,7 @@ class Arc_Twitter_Auth
         	return;
         }
 
-        set_pref('arc_twitter_account_linked', 0);
+        set_pref('arc_twitter_account', '');
         set_pref('arc_twitter_access_token', '');
         set_pref('arc_twitter_access_token_secret', '');
         set_pref('arc_twitter_consumer_key', '');

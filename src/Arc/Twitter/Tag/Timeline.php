@@ -138,7 +138,7 @@ class Arc_Twitter_Tag_Timeline
     protected function timelineUser($atts)
     {
         extract(lAtts(array(
-            'user'     => null,
+            'user'     => get_pref('arc_twitter_account'),
             'limit'    => 10,
             'replies'  => 1,
             'retweets' => 1,
@@ -211,7 +211,7 @@ class Arc_Twitter_Tag_Timeline
     protected function timelineFavorites()
     {
         extract(lAtts(array(
-            'user'  => '',
+            'user'  => get_pref('arc_twitter_account'),
             'limit' => 10,
         ), $atts));
 

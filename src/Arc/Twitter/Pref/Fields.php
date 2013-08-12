@@ -27,7 +27,7 @@ class Arc_Twitter_Pref_Fields
                 ));
         }
 
-        if (get_pref('arc_twitter_account_linked'))
+        if (get_pref('arc_twitter_account'))
         {
             return
                 n.href(gTxt('arc_twitter_unlink_account'), array(
