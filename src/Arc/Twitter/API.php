@@ -30,6 +30,8 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
 
     /**
      * {@inheritdoc}
+     *
+     * @todo Avoid caching errors
      */
 
     protected function doCall($url, array $parameters = null, $authenticate = false, $method = 'GET', $filePath = null, $expectJSON = true, $returnHeaders = false)
