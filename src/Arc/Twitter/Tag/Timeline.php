@@ -11,6 +11,14 @@ class Arc_Twitter_Tag_Timeline
     protected $current = array();
 
     /**
+     * Twitter API instance.
+     *
+     * @var Arc_Twitter_API
+     */
+
+    protected $api;
+
+    /**
      * Constructor.
      */
 
@@ -31,84 +39,45 @@ class Arc_Twitter_Tag_Timeline
     public function timeline($atts, $thing = null)
     {
         extract(lAtts(array(
-            'article'      => null,
-            'user'         => '',
-            'timeline'     => 'user',
+            'timeline'     => 'home',
             'limit'        => 10,
-            'retweets'     => 1,
-            'replies'      => 1,
             'label'        => '',
             'labeltag'     => '',
             'break'        => '',
             'wraptag'      => '',
             'class'        => '',
-            'search'       => '',
-            'mention'      => '',
-            'reply'        => '',
-            'hashtags'     => '',
-            'status'       => '',
-        ), $atts));
+        ), $atts, false));
 
-        if ($article)
+        unset(
+            $atts['timeline'],
+            $atts['limit'],
+            $atts['label'],
+            $atts['labeltag'],
+            $atts['break'],
+            $atts['wraptag'],
+            $atts['class']
+        );
+
+        if (!$this->api)
         {
-            // TODO: support comma-separated list of IDs.
-            $tweet = safe_row('*', 'arc_twitter', "article = '".doSlash($article)."'");
-            return parse($thing);
+            $this->api = new Arc_Twitter_API(null, null);
         }
 
-        $twitter = new Arc_Twitter_API(null, null);
-        $count = max(200, min(20, $limit));
+        $method = 'timeline'.ucfirst($timeline);
 
-        if ($timeline === 'home')
+        if (!method_exists($this, $method))
         {
-            $tweets = $twitter->statusesHomeTimeline($count, null, null, null, !$replies, null, null);
+            return '';
         }
-        else if ($timeline === 'mentions')
-        {
-            $tweets = $twitter->statusesMentionsTimeline($limit);
-        }
-        else if ($timeline === 'retweets')
-        {
-            $tweets = $twitter->statusesRetweets($status);
-        }
-        else if ($timeline === 'show')
-        {
-            $tweets = $twitter->statusesShow($status);
-        }
-        else if ($timeline === 'favorites')
-        {
-            $tweets = $twitter->favoritesList(null, $user, $limit);
-        }
-        else if ($timeline === 'search')
-        {
-            $q = do_list($search);
 
-            if ($user)
-            {
-                $q[] = 'from:' . implode(' from:', do_list($user));
-            }
-
-            if ($reply)
-            {
-                $q[] = 'to:' . implode(' to:', do_list($reply));
-            }
-
-            if ($mention)
-            {
-                $q[] = '@' . implode(' @', do_list($mention));
-            }
-
-            if ($hashtag)
-            {
-                $q[] = '#' . implode(' #', do_list($hashtag));
-            }
-
-            $q = urlencode(trim(implode(' ', $q)));
-            $tweets = $twitter->searchTweets($q, null, null, null, null, $limit, null, null, null, null);
-        }
-        else
+        try
         {
-            $tweets = $twitter->statusesUserTimeline(null, $user, null, $count, null, null, !$replies, null, $retweets);
+            $tweets = $this->$method($atts);
+        }
+        catch (Exception $e)
+        {
+            trigger_error($e->getMessage());
+            return '';
         }
 
         if ($tweets)
@@ -128,6 +97,136 @@ class Arc_Twitter_Tag_Timeline
         }
 
         return '';
+    }
+
+    /**
+     * Home timeline.
+     */
+
+    protected function timelineHome($atts)
+    {
+        extract(lAtts(array(
+            'limit'   => 10,
+            'replies' => 1,
+        ), $atts));
+
+        return $this->api->statusesHomeTimeline(max(200, min(20, $limit)), null, null, null, !$replies, null, null);
+    }
+
+    /**
+     * User timeline.
+     */
+
+    protected function timelineUser($atts)
+    {
+        extract(lAtts(array(
+            'user'     => null,
+            'limit'    => 10,
+            'replies'  => 1,
+            'retweets' => 1,
+        ), $atts));
+
+        return $this->api->statusesUserTimeline(null, $user, null, max(200, min(20, $limit)), null, null, !$replies, null, $retweets);
+    }
+
+    /**
+     * Mentions timeline.
+     */
+
+    protected function timelineMentions($atts)
+    {
+        extract(lAtts(array(
+            'limit'   => 10,
+        ), $atts));
+
+        return $this->api->statusesMentionsTimeline($limit)
+    }
+
+    /**
+     * Retweets timeline.
+     */
+
+    protected function timelineRetweets($atts)
+    {
+        extract(lAtts(array(
+            'status' => '',
+        ), $atts));
+
+        return $this->api->statusesRetweets($status);
+    }
+
+    /**
+     * Shows individual status.
+     */
+
+    protected function timelineShow($atts)
+    {
+        extract(lAtts(array(
+            'status'  => '',
+            'article' => null,
+        ), $atts));
+
+        if ($article !== null && !($status = safe_field('status_id', 'arc_twitter', 'article = '.intval($article))))
+        {
+            throw new Exception('Article '.intval($article).' does not have Twitter status.');
+        }
+
+        return $this->api->statusesShow($status);
+    }
+
+    /**
+     * Favorites timeline.
+     */
+
+    protected function timelineFavorites()
+    {
+        extract(lAtts(array(
+            'user'  => '',
+            'limit' => 10,
+        ), $atts));
+
+        return $this->api->favoritesList(null, $user, $limit);
+    }
+
+    /**
+     * Search timeline.
+     */
+
+    protected function timelineSearch($atts)
+    {
+        extract(lAtts(array(
+            'search'  => '',
+            'user'    => '',
+            'reply'   => '',
+            'mention' => '',
+            'hashtag' => '',
+            'limit'   => 10,
+        ), $atts));
+
+        $q = do_list($search);
+
+        if ($user)
+        {
+            $q[] = 'from:' . implode(' from:', do_list($user));
+        }
+
+        if ($reply)
+        {
+            $q[] = 'to:' . implode(' to:', do_list($reply));
+        }
+
+        if ($mention)
+        {
+            $q[] = '@' . implode(' @', do_list($mention));
+        }
+
+        if ($hashtag)
+        {
+            $q[] = '#' . implode(' #', do_list($hashtag));
+        }
+
+        $q = urlencode(trim(implode(' ', $q)));
+        return $this->api->searchTweets($q, null, null, null, null, $limit, null, null, null, null);
     }
 
     /**
