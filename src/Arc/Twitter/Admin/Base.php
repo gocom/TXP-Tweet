@@ -79,7 +79,6 @@ class Arc_Twitter_Admin_Base implements Arc_Twitter_Admin_Template
                 'arc_twitter',
                 "article = ".intval($r['ID']).",
                 status_id = '".doSlash($result['id'])."',
-                status = '".doSlash($status)."',
                 url = '".doSlash($url)."'"
             );
         }
