@@ -31,7 +31,51 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
 
     protected function doCall($url, array $parameters = null, $authenticate = false, $method = 'GET', $filePath = null, $expectJSON = true, $returnHeaders = false)
     {
-        return parent::doCall($url, $parameters, $authenticate, $method, $filePath, $expectJSON, $returnHeaders);
+        global $prefs;
+
+        if ($method === 'GET')
+        {
+            $delete = array();
+            $time = strtotime('-30 minutes');
+
+            if (get_pref('arc_twitter_cache_lastrun') < $time)
+            {
+                foreach ($prefs as $name => $value)
+                {
+                    if (strpos('arc_twitter_cachet.') === 0 && $value < $time)
+                    {
+                        $cacheName = 'arc_twitter_' . pathinfo($name, PATHINFO_EXTENSION);
+                        $delete[] = "'" . doSlash($name) . "'";
+                        $delete[] = "'" . doSlash($cacheName) . "'";
+                        unset($prefs[$name], $prefs[$cacheName]);
+                    }
+                }
+
+                if ($delete)
+                {
+                    safe_delete('txp_prefs', "name in (".join(',', $delete)")");
+                }
+
+                set_pref('arc_twitter_cache_lastrun', time(), 'arc_twitter', PREF_HIDDEN);
+            }
+
+            $cacheID = md5(json_encode(array($url, $parameters)));
+
+            if ($body = get_pref('arc_twitter_cache.'.$cacheID))
+            {
+                return json_decode($body, true);
+            }
+        }
+
+        $body = parent::doCall($url, $parameters, $authenticate, $method, $filePath, $expectJSON, $returnHeaders);
+
+        if ($method === 'GET' && $body)
+        {
+            set_pref('arc_twitter_cache.'.$cacheID, json_encode($body), 'arc_twitter', PREF_HIDDEN);
+            set_pref('arc_twitter_cachet.'.$cacheID, time(), 'arc_twitter', PREF_HIDDEN); 
+        }
+
+        return $body;
     }
 
     /**
