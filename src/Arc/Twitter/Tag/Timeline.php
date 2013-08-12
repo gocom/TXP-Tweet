@@ -168,10 +168,10 @@ class Arc_Twitter_Tag_Timeline
     }
 
     /**
-     * Shows individual status.
+     * Shows an individual status.
      */
 
-    protected function timelineShow($atts)
+    protected function timelineStatus($atts)
     {
         extract(lAtts(array(
             'status'  => '',
