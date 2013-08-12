@@ -207,37 +207,11 @@ class Arc_Twitter_Tag_Timeline
     protected function timelineSearch($atts)
     {
         extract(lAtts(array(
-            'search'  => '',
-            'user'    => '',
-            'reply'   => '',
-            'mention' => '',
-            'hashtag' => '',
-            'limit'   => 10,
+            'q'     => '',
+            'limit' => 10,
         ), $atts));
 
-        $q = do_list($search);
-
-        if ($user)
-        {
-            $q[] = 'from:' . implode(' from:', do_list($user));
-        }
-
-        if ($reply)
-        {
-            $q[] = 'to:' . implode(' to:', do_list($reply));
-        }
-
-        if ($mention)
-        {
-            $q[] = '@' . implode(' @', do_list($mention));
-        }
-
-        if ($hashtag)
-        {
-            $q[] = '#' . implode(' #', do_list($hashtag));
-        }
-
-        $q = urlencode(trim(implode(' ', $q)));
+        $q = urlencode(trim($q));
         return $this->api->searchTweets($q, null, null, null, null, $limit, null, null, null, null);
     }
 
