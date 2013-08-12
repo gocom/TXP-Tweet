@@ -11,6 +11,16 @@ class Arc_Twitter_Tag_Timeline
     protected $current = array();
 
     /**
+     * Constructor.
+     */
+
+    public function __construct()
+    {
+        Textpattern_Tag_Registry::register(array($this, 'timeline'), 'arc_twitter');
+        Textpattern_Tag_Registry::register(array($this, 'value'), 'arc_twitter_value');
+    }
+
+    /**
      * Renders Twitter timeline.
      *
      * @param  array  $atts  Attributes
@@ -168,12 +178,11 @@ class Arc_Twitter_Tag_Timeline
     protected function formatStatusUrl($atts, $thing, $value)
     {
         extract(lAtts(array(
-            'user'  => '', // TODO: remove and extract from the tweet body.
             'class' => '',
             'title' => '',
         ), $atts));
 
-        $url = 'https://twitter.com/'.urlencode($user).'/status/'.urlencode($this->current['status_id']);
+        $url = 'https://twitter.com/'.urlencode($this->current['user']['screen_name']).'/status/'.urlencode($this->current['id_str']);
 
         if ($thing === null)
         {

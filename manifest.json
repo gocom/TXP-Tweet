@@ -18,6 +18,7 @@
         "./src/Arc/Twitter/Admin/Base.php",
         "./src/Arc/Twitter/Admin/Article.php",
         "./src/Arc/Twitter/Tag/Button.php",
+        "./src/Arc/Twitter/Tag/Timeline.php",
         "./src/Arc/Twitter.php"
     ]}
 }
