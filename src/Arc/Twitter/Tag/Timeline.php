@@ -113,6 +113,9 @@ class Arc_Twitter_Tag_Timeline
 
     /**
      * Home timeline.
+     *
+     * @param  array $atts Attributes
+     * @return array
      */
 
     protected function timelineHome($atts)
@@ -127,6 +130,9 @@ class Arc_Twitter_Tag_Timeline
 
     /**
      * User timeline.
+     *
+     * @param  array $atts Attributes
+     * @return array
      */
 
     protected function timelineUser($atts)
@@ -143,6 +149,9 @@ class Arc_Twitter_Tag_Timeline
 
     /**
      * Mentions timeline.
+     *
+     * @param  array $atts Attributes
+     * @return array
      */
 
     protected function timelineMentions($atts)
@@ -156,6 +165,9 @@ class Arc_Twitter_Tag_Timeline
 
     /**
      * Retweets timeline.
+     *
+     * @param  array $atts Attributes
+     * @return array
      */
 
     protected function timelineRetweets($atts)
@@ -169,6 +181,9 @@ class Arc_Twitter_Tag_Timeline
 
     /**
      * Shows an individual status.
+     *
+     * @param  array $atts Attributes
+     * @return array
      */
 
     protected function timelineStatus($atts)
@@ -188,6 +203,9 @@ class Arc_Twitter_Tag_Timeline
 
     /**
      * Favorites timeline.
+     *
+     * @param  array $atts Attributes
+     * @return array
      */
 
     protected function timelineFavorites()
@@ -202,6 +220,9 @@ class Arc_Twitter_Tag_Timeline
 
     /**
      * Search timeline.
+     *
+     * @param  array $atts Attributes
+     * @return array
      */
 
     protected function timelineSearch($atts)
@@ -217,6 +238,10 @@ class Arc_Twitter_Tag_Timeline
 
     /**
      * Renders the item value.
+     *
+     * @param  array  $atts  Attributes
+     * @param  string $thing Contained statement
+     * @return string HTML markup
      */
 
     public function value($atts, $thing = null)
@@ -241,14 +266,19 @@ class Arc_Twitter_Tag_Timeline
 
         if (method_exists($this, $method))
         {
-            return $this->$method($atts, $thing, $value);
+            return (string) $this->$method($atts, $thing, $value);
         }
 
         return txpspecialchars($value);
     }
 
     /**
-     * Formats created at.
+     * Formats created at timestamp.
+     *
+     * @param  array  $atts  Attributes
+     * @param  string $thing Contained statement
+     * @param  string $value The value to format
+     * @return string
      */
 
     protected function formatCreatedAt($atts, $thing, $value)
@@ -262,6 +292,11 @@ class Arc_Twitter_Tag_Timeline
 
     /**
      * Formats status URL.
+     *
+     * @param  array  $atts  Attributes
+     * @param  string $thing Contained statement
+     * @param  string $value The value to format
+     * @return string
      */
 
     protected function formatStatusUrl($atts, $thing, $value)
