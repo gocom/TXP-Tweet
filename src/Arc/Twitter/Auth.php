@@ -111,9 +111,7 @@ class Arc_Twitter_Auth
         	return;
         }
 
-        set_pref('arc_twitter_account', '');
-        set_pref('arc_twitter_access_token', '');
-        set_pref('arc_twitter_access_token_secret', '');
+        $this->purgeAccountData();
     }
 
     /**
@@ -127,10 +125,20 @@ class Arc_Twitter_Auth
         	return;
         }
 
+        $this->purgeAccountData();
+        set_pref('arc_twitter_consumer_key', '');
+        set_pref('arc_twitter_consumer_secret', '');
+    }
+
+    /**
+     * Purges account related data.
+     */
+
+    protected function purgeAccountData()
+    {
         set_pref('arc_twitter_account', '');
         set_pref('arc_twitter_access_token', '');
         set_pref('arc_twitter_access_token_secret', '');
-        set_pref('arc_twitter_consumer_key', '');
-        set_pref('arc_twitter_consumer_secret', '');
+        safe_delete('txp_prefs', "name like 'arc\_twitter\_cachet.%' or name like 'arc\_twitter\_cache.%'");
     }
 }
