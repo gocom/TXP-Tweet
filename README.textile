@@ -19,7 +19,7 @@ bc. <txp:arc_twitter>
     ...contained statement...
 </txp:arc_twitter>
 
-Todo.
+The arc_twitter tag can be used to generate Twitter timelines.
 
 h4. Attributes
 
@@ -146,6 +146,15 @@ Finds relevant tweets.
 *q*
 Search query.
 Example: @q="#horses #ponies"@ Default: @""@
+
+h4. Example
+
+bc. <txp:arc_twitter break="article">
+    <h1><txp:arc_twitter_value name="user->name" /></h1>
+    <h2>@<txp:arc_twitter_value name="user->screen_name" /></h2>
+    <p><txp:arc_twitter_value name="text" /></p>
+    <p><txp:arc_twitter_value name="created_at" /></p>
+</txp:arc_twitter>
 
 h3. arc_twitter_share
 
