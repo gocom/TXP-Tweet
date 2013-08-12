@@ -94,9 +94,9 @@ Example: @user="example"@ Default: @""@
 Whether to include replies.
 Example: @replies="0"@ Default: @"1"@
 
-*replies*
+*retweets*
 Whether to include retweets.
-Example: @replies="0"@ Default: @"1"@
+Example: @retweets="0"@ Default: @"1"@
 
 h5. Mentions timeline
 
