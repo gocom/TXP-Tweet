@@ -26,7 +26,7 @@ h2. Tags and attributes
 
 h3. arc_twitter
 
-bc. <txp:arc_twitter user="drmonkeyninja">
+bc. <txp:arc_twitter>
     ...contained statement...
 </txp:arc_twitter>
 
@@ -34,9 +34,12 @@ Todo.
 
 h4. Attributes
 
-*user*
-Twitter username.
-Example: @user="drmonkeyninja"@ Default: _authenticated user_
+h5. Global attributes
+
+These global attributes are available for any type of timeline.
+
+*timeline*
+Returned timeline type. Accepted values are @home@, @user@, @mentions@, @retweets@, @status@, @favorites@ and @search@.
 
 *limit*
 Maximum number of tweets to return. Integer from 1 to 200.
@@ -61,6 +64,98 @@ Example: @class="timeline"@ Default: @""@
 *break*
 HTML element or string to separate list items.
 Example: @break="li"@ Default: @""@
+
+h5. Home timeline
+
+bc. <txp:arc_twitter timeline="home">
+    ...contained statement...
+</txp:arc_twitter>
+
+Returns Twitter status updates posted by the authenticated user and the users they follow.
+
+*replies*
+Whether to include replies.
+Example: @replies="0"@ Default: @"1"@
+
+h5. User timeline
+
+bc. <txp:arc_twitter timeline="user">
+    ...contained statement...
+</txp:arc_twitter>
+
+User timeline returns specified user's Twitter status updates. Its identical to the timeline seen on user's profile page on the Twitter.com website.
+
+*user*
+Twitter username whose tweets will be displayed.
+Example: @user="example"@ Default: @""@
+
+*replies*
+Whether to include replies.
+Example: @replies="0"@ Default: @"1"@
+
+*replies*
+Whether to include retweets.
+Example: @replies="0"@ Default: @"1"@
+
+h5. Mentions timeline
+
+bc. <txp:arc_twitter timeline="mentions">
+    ...contained statement...
+</txp:arc_twitter>
+
+Mentions timeline returns any status updates containing the authenticated users's @screen_name. This timeline has no additional attributes.
+
+h5. Retweets timeline
+
+bc. <txp:arc_twitter timeline="retweets">
+    ...contained statement...
+</txp:arc_twitter>
+
+Retweets timeline returns any retweets of a given status update.
+
+*status*
+The status update ID.
+Example: @status="12345"@ Default: @""@
+
+h5. Status
+
+bc. <txp:arc_twitter timeline="status">
+    ...contained statement...
+</txp:arc_twitter>
+
+Displays individual status update, specified by ID.
+
+*status*
+The status update ID.
+Example: @status="12345"@ Default: @""@
+
+*article*
+Display a status update posted for a shared Textpattern article.
+Example: @article="32"@ Default: @""@
+
+h5. Favorites
+
+Displays the specified user's favorite tweets.
+
+bc. <txp:arc_twitter timeline="favorites">
+    ...contained statement...
+</txp:arc_twitter>
+
+*user*
+Twitter username whose tweets will be displayed.
+Example: @user="example"@ Default: @""@
+
+h5. Search
+
+bc. <txp:arc_twitter timeline="search" q="@example">
+    ...contained statement...
+</txp:arc_twitter>
+
+Finds relevant tweets.
+
+*q*
+Search query.
+Example: @q="#horses #ponies"@ Default: @""@
 
 h3. arc_twitter_share
 
