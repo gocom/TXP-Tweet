@@ -116,8 +116,10 @@ class Arc_Twitter_Tag_Timeline
 
             foreach ($tweets as $tweet)
             {
-                $this->current = $tweet; // TODO: support nesting.
+                $parent = $this->current;
+                $this->current = $tweet;
                 $out[] = parse($thing);
+                $this->current = $parent;
             }
 
             return doLabel($label, $labeltag).doWrap($out, $wraptag, $break, $class);
