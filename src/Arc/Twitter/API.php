@@ -68,6 +68,16 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
      * {@inheritdoc}
      */
 
+    public function statusesOEmbed($id = null, $url = null, $maxwidth = null, $hideMedia = null, $hideThread = null, $omitScript = null, $align = null, $related = null, $lang = null)
+    {
+        $this->cacheDuration = 0;
+        return parent::statusesOEmbed($id, $url, $maxwidth, $hideMedia, $hideThread, $omitScript, $align, $related, $lang);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+
     public function setOAuthToken($token)
     {
         set_pref('arc_twitter_access_token', $token);
