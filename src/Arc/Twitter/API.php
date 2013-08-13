@@ -9,7 +9,7 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
     /**
      * Cache duration in seconds.
      *
-     * If FALSE disables caching for the request.
+     * If FALSE disables caching for the next request.
      * If zero (0), the cache never expires.
      *
      * @var int|bool
@@ -49,6 +49,7 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
 
         if ($method === 'GET' && $body = $this->getCacheStash($url, $parameters))
         {
+            $this->cacheDuration = 1800;
             return $body;
         }
 
@@ -59,6 +60,7 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
         if ($method === 'GET' && $body)
         {
             $this->setCacheStash($url, $parameters, $body);
+            $this->cacheDuration = 1800;
         }
 
         return $body;
@@ -116,8 +118,6 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
         {
             set_pref('arc_twitter_cachet.'.$id, time() + $this->cacheDuration, 'arc_twitter', PREF_HIDDEN);
         }
-
-        $this->cacheDuration = 1800;
     }
 
     /**
