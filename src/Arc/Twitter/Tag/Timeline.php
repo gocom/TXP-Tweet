@@ -43,7 +43,7 @@ class Arc_Twitter_Tag_Timeline
     public function timeline($atts, $thing = null)
     {
         extract(lAtts(array(
-            'timeline' => 'user',
+            'timeline' => 'embed',
             'limit'    => 10,
             'label'    => '',
             'labeltag' => '',
@@ -95,20 +95,54 @@ class Arc_Twitter_Tag_Timeline
         if ($tweets)
         {
             $out = array();
-            $tweets = array_slice($tweets, 0, $limit);
 
-            foreach ($tweets as $tweet)
+            if (is_array($tweets))
             {
-                $parent = $this->current;
-                $this->current = $tweet;
-                $out[] = parse($thing);
-                $this->current = $parent;
+                $tweets = array_slice($tweets, 0, $limit);
+
+                foreach ($tweets as $tweet)
+                {
+                    $parent = $this->current;
+                    $this->current = $tweet;
+                    $out[] = parse($thing);
+                    $this->current = $parent;
+                }
+            }
+            else
+            {
+                $out[] = $tweets;
             }
 
             return doLabel($label, $labeltag).doWrap($out, $wraptag, $break, $class);
         }
 
         return '';
+    }
+
+    /**
+     * Uses Twitter widget to embed tweet.
+     *
+     * @param  string $atts Attributes
+     * @return string
+     */
+
+    protected function timelineEmbed($atts)
+    {
+        extract(lAtts(array(
+            'id'       => null,
+            'url'      => null,
+            'maxwidth' => null,
+            'media'    => 1,
+            'thread'   => 1,
+            'script'   => 1,
+            'align'    => null,
+            'related'  => null,
+            'lang'     => null,
+        ), $atts));
+
+        $response = $this->api->statusesOEmbed($id, $url, $maxwidth, !$media, !$thread, !$script, $align, $related, $lang);
+
+        return preg_replace('#<(/?)(txp:)#i', '&lt;$1$2', $response['html']);
     }
 
     /**

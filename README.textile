@@ -28,11 +28,11 @@ h5. Global attributes
 These global attributes are available for any type of timeline.
 
 *timeline*
-Returned timeline type. Accepted values are @home@, @user@, @mentions@, @retweets@, @status@, @favorites@ and @search@.
-Example: @timeline="home"@ Default: @"user"@
+Returned timeline type. Accepted values are @embed@, @home@, @user@, @mentions@, @retweets@, @status@, @favorites@ and @search@.
+Example: @timeline="user"@ Default: @"embed"@
 
 *limit*
-Maximum number of tweets to return. Integer from 1 to 200.
+Maximum number of tweets to return. Accepts values from 1 to 200. Limit does not apply to timeline types that only display single status updates, or other specific number of tweets. The limit does not guarantee that the API will actual return that number of tweets, and in cases it can be less than the limit.
 Example: @limit="25"@ Default: @"10"@
 
 *label*
@@ -55,6 +55,48 @@ Example: @class="timeline"@ Default: @""@
 HTML element or string to separate list items.
 Example: @break="li"@ Default: @""@
 
+h5. Embed status widget timeline
+
+Uses "oEmbed":http://oembed.com/ to return a embed widget code for the specified status update. This is the defaulted timeline type you should be using to comply with Twitter's "Developer Display Requirements":https://dev.twitter.com/terms/display-requirements. If you wish to use the plugin to build your own advanced timelines, please take your time to read and finely implement these requirements.
+
+bc. <txp:arc_twitter url="https://twitter.com/#!/twitter/status/99530515043983360" />
+
+*id*
+The ID of the tweet. Either @url@ or @id@ needs to be specified.
+Example: @id="99530515043983360"@ Default: _undefined_
+
+*url*
+The full URL of the tweet. Either @url@ or @id@ needs to be specified.
+Example: @url="https://twitter.com/#!/twitter/status/99530515043983360"@ Default: _undefined_
+
+*maxwidth*
+The maximum width in pixels that the embed should be rendered at. Between 250 and 550 pixels.
+Example: @maxwidth="325"@ Default: _undefined_
+
+*media*
+Whether images should be expanded automatically.
+Example: @media="0"@ Default @"1"@
+
+*thread*
+Whether the tweet should show the original message in the case that the specified tweet is a reply.
+Example: @thread="0"@ Default: @"1"@
+
+*script*
+Whether the embedded Tweet HTML should include Twitter's @widgets.js@ to the page.
+Example: @script="0"@ Default: @"1"@
+
+*align*
+Specifies alignment. Either @left@, @right@, @center@ or @none@ if specified. By default undefined, and no alignment styles are specified by the widget.
+Example: @align="right"@ Default: _undefined_
+
+*related*
+Comma-separated list of related accounts. See "Web intents":https://dev.twitter.com/docs/intents for more information.
+Example: @related="twitter,github"@ Default: _undefined_
+
+*lang*
+Language code. This will affect the widget's localization.
+Example: @lang="fr"@ Default: _undefined_
+
 h5. Home timeline
 
 bc. <txp:arc_twitter timeline="home">
@@ -64,7 +106,7 @@ bc. <txp:arc_twitter timeline="home">
 Returns Twitter status updates posted by the authenticated user and the users they follow.
 
 *replies*
-Whether to include replies.
+Whether to include replies. It's recommend to keep this option on.
 Example: @replies="0"@ Default: @"1"@
 
 h5. User timeline
@@ -80,11 +122,11 @@ Twitter username whose tweets will be displayed.
 Example: @user="example"@ Default: _authenticated user_
 
 *replies*
-Whether to include replies.
+Whether to include replies. It's recommend to keep this option on.
 Example: @replies="0"@ Default: @"1"@
 
 *retweets*
-Whether to include retweets.
+Whether to include retweets. It's recommend to keep this option on.
 Example: @retweets="0"@ Default: @"1"@
 
 h5. Mentions timeline
@@ -141,7 +183,7 @@ bc. <txp:arc_twitter timeline="search" q="@example">
     ...contained statement...
 </txp:arc_twitter>
 
-Finds relevant tweets.
+Finds relevant tweets. Search results might be unreliable: not all tweets will be indexed and results are everything, but live. Don't use this as your main source of tweets, but please see the other timeline options.
 
 *q*
 Search query.
