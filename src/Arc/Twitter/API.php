@@ -36,7 +36,7 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
     {
         global $prefs;
 
-        if ($method === 'GET' && $body = $this->getCacheStash())
+        if ($method === 'GET' && $body = $this->getCacheStash($url, $parameters))
         {
             return $body;
         }
