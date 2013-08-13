@@ -53,7 +53,19 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
             return $body;
         }
 
-        $body = parent::doCall($url, $parameters, $authenticate, $method, $filePath, $expectJSON, $returnHeaders);
+        try
+        {
+            $body = parent::doCall($url, $parameters, $authenticate, $method, $filePath, $expectJSON, $returnHeaders);
+        }
+        catch (Exception $e)
+        {
+            if ($method === 'GET' && $body = $this->getCacheStash($url, $parameters, false))
+            {
+                return $body;
+            }
+
+            throw new Exception($e->getMessage());
+        }
 
         $this->cleanCacheStash();
 
@@ -123,17 +135,18 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
     /**
      * Gets cached request body.
      *
-     * @param  string     $url        Request resource
-     * @param  array      $parameters Request parameters
+     * @param  string     $url          Request resource
+     * @param  array      $parameters   Request parameters
+     * @param  bool       $checkExpires Whether to check cache expiration date
      * @return array|bool
      */
 
-    protected function getCacheStash($url, $parameters)
+    protected function getCacheStash($url, $parameters, $checkExpires = true)
     {
         $id = md5(json_encode(array($url, $parameters)));
         $time = get_pref('arc_twitter_cachet.'.$id, false);
 
-        if ($time === false || $time >= time())
+        if ($checkExpires === false || $time === false || $time >= time())
         {
             return (array) json_decode(get_pref('arc_twitter_cache.'.$id), true);
         }
