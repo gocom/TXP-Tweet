@@ -7,6 +7,17 @@
 class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
 {
     /**
+     * Cache duration in seconds.
+     *
+     * If FALSE disables caching for the request.
+     * If zero (0), the cache never expires.
+     *
+     * @var int|bool
+     */
+
+    protected $cacheDuration = 1800;
+
+    /**
      * {@inheritdoc}
      */
 
@@ -83,9 +94,20 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
 
     protected function setCacheStash($url, $parameters, $body)
     {
+        if ($this->cacheDuration === false)
+        {
+            return;
+        }
+
         $id = md5(json_encode(array($url, $parameters)));
         set_pref('arc_twitter_cache.'.$id, json_encode($body), 'arc_twitter', PREF_HIDDEN);
-        set_pref('arc_twitter_cachet.'.$id, strtotime('+30 minutes'), 'arc_twitter', PREF_HIDDEN);
+
+        if ($this->cacheDuration)
+        {
+            set_pref('arc_twitter_cachet.'.$id, time() + $this->cacheDuration, 'arc_twitter', PREF_HIDDEN);
+        }
+
+        $this->cacheDuration = 1800;
     }
 
     /**
@@ -99,10 +121,11 @@ class Arc_Twitter_API extends TijsVerkoyen\Twitter\Twitter
     protected function getCacheStash($url, $parameters)
     {
         $id = md5(json_encode(array($url, $parameters)));
+        $time = get_pref('arc_twitter_cachet.'.$id, false);
 
-        if ($body = get_pref('arc_twitter_cache.'.$id) && get_pref('arc_twitter_cachet.'.$id) >= time())
+        if ($time === false || $time >= time())
         {
-            return (array) json_decode($body, true);
+            return (array) json_decode(get_pref('arc_twitter_cache.'.$id), true);
         }
 
         return false;
